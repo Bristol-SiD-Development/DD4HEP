@@ -31,6 +31,7 @@ alias ilcsoft="source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilc
 ```
 so running `ilcsoft` will setup the environment.
 
+-----------------------------------------------------------------------------
 Navigate to the directory in which you wish to install lcgeo and checkout the source code:
 ```
 git clone https://github.com/iLCSoft/lcgeo.git
@@ -60,7 +61,41 @@ source ../bin.thislcgeo.sh
 ```
 but running it will cause ddsim to not work (something to do with PYTHONPATH priorites).
 
-## Running an example sim
+-----------------------------------------------------------------------------
+# Running a simulation
+There are three steps in running the full chain. 
+1) Particle generation - particle gun or a physics sample
+2) Detector simulation - via a ddsim command
+3) Reconstruction - via a Marlin command, controlled by an xml script
+## Generating input particles
+
+For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. These are modified from the standard script to give sucessive event numbers.
+
+For physics events (e.g. an ILC collision), you may need to seek out ready-made input files, ideally in .slcio format. Older ones may use the .stdhep format, which should be compatible but may cause problems in some cases.
+
+## Running a simulation
+
+<!-- From the lcgeo directory, run the following: -->
+From the DD4HEP directory, run the following:
+
+```
+ddsim --compactFile=compact/[GEOMETRY] --runType=batch --inputFile=[INPUT PATH] -N=[EVENTS] --outputFile=[OUTPUT PATH]
+```
+ - [GEOMETRY]: the path to the master .xml file for the chosen geometry
+ - [INPUT PATH]: the path to the .slcio file containing the input particles
+ - [EVENTS]: the desired number of events (you will of course need to have enough events in the input file!)
+ - [OUTPUT PATH]: the path to the desired output file (must be .slcio)
+
+This will simulate the events, which can then be reconstructed.
+
+## Reconstructing events
+
+You will need to have a .xml steering file for use with the Marlin reconstruction software. You can modify reco/SiDReconstruction_test160628.xml, SiDReconstruction_o2_v03_calib1.xml, by changing the following parameters:
+ - LCIOInputFiles: path to the input file (the simulation output file)
+ - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
+ - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels)
+ - LCIOOutputFile: path to the desired output file.
+
 Navigate to your lcgeo directory (remember to initialise your environment) and run the example particle gun script:
 ```
 python example/lcio_particle_gun.py
@@ -93,33 +128,7 @@ You should now have a file named 'sitracks.slcio' (or whatever LCIOOutputFile wa
 
 Here are some general instructions for running the simulatiom->reconstruction->analysis chain. First off, you will need to set up your environment (see above). There is an old master initialisation script for this purpose, init/init_master_new.sh, but does not work for the newest version.
 
-## Generating input particles
 
-For simple input events (e.g. test muons), modify a copy of lcio_particle_gun.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily.
-
-For more complicated events (e.g. an ILC collision), you may need to seek out ready-made input files. Older ones may use the .stdhep format, which should be compatible but may cause problems in some cases.
-
-## Running a simulation
-
-From the lcgeo directory, run the following:
-
-```
-ddsim --compactFile=compact/[GEOMETRY] --runType=batch --inputFile=[INPUT PATH] -N=[EVENTS] --outputFile=[OUTPUT PATH]
-```
- - [GEOMETRY]: the path to the master .xml file for the chosen geometry
- - [INPUT PATH]: the path to the .slcio file containing the input particles
- - [EVENTS]: the desired number of events (you will of course need to have enough events in the input file!)
- - [OUTPUT PATH]: the path to the desired output file (must be .slcio)
-
-This will simulate the events, which can then be reconstructed.
-
-## Reconstructing events
-
-You will need to have a .xml steering file for use with the Marlin reconstruction software. You can modify reco/SiDReconstruction_test160628.xml, SiDReconstruction_o2_v03_calib1.xml, by changing the following parameters:
- - LCIOInputFiles: path to the input file (the simulation output file)
- - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
- - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels)
- - LCIOOutputFile: path to the desired output file.
  
 Alternatively, if you are a masochist, you can create one from scratch. Then run your reconstruction using Marlin, e.g.
 
