@@ -4,23 +4,33 @@ A repository for work on SiD for use with the DD4hep toolkit, started by Gabriel
 
 # Directories:
  - init: initialisation scripts for environment setup
- - compact: detector descriptions (adapted from the SiD description included with lcgeo)
- - particlegun: particle gun scripts for ddsim and the LCIO particle input files they generate
- - reco: reconstruction steering files for Marlin
+ - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
+ - gunScripts: particle gun scripts for producing input MC particles
+ - mcpFiles: source MC .slcio files to be fed into to ddsim
+ - ddsimFiles: detector simulated ddsim .slcio files to be fed into to Marlin
+ - MarlinXMLs: reconstruction steering files for Marlin
+ - recoedFiles: store reconstructed .slcio and root files
  - analysis: pyLCIO analysis scripts, adapted from Josh Tingey's pixel studies (see pixelStudies repo)
- - auto: miscellaneous shell scripts for submitting multiple jobs
+ - auto: miscellaneous shell scripts for submitting multiple jobs or running the full chain
 
 # Getting started
-These instructions assume you are SSHing to a UoB SL6 machine (e.g. Soolin) with access to cvmfs. ILCSoft libraries are available on cvmfs, so you will not need to install DD4hep, LCIO, Marlin etc locally.
+These instructions assume you are SSHing to a UoB SL7 machine (e.g. sc01) with access to cvmfs. ILCSoft libraries are available on cvmfs, so you will not need to install DD4hep, LCIO, Marlin etc locally.
 
 These instructions are based on [those provided by Dr Aidan Robson (Glasgow)](https://twiki.ppe.gla.ac.uk/bin/view/LinearCollider/GlaSiDGettingStarted), which you may find to be more up-to-date but less tailored to our setups.
 
 ## Installing lcgeo
 Start by setting up your environment. You will have to do this every time you start a new session:
 ```
-source /cvmfs/sft.cern.ch/lcg/releases/gcc/4.9.3/x86_64-slc6/setup.sh
-source /cvmfs/ilc.desy.de/sw/x86_64_gcc49_sl6/v02-00-01/init_ilcsoft.sh
+<!-- source /cvmfs/sft.cern.ch/lcg/releases/gcc/4.9.3/x86_64-slc6/setup.sh -->
+
+source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh
 ```
+Or add the following to your ~/.bashrc: (remeber to restart shell session after)
+```
+alias ilcsoft="source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh"
+```
+so running `ilcsoft` will setup the environment.
+
 Navigate to the directory in which you wish to install lcgeo and checkout the source code:
 ```
 git clone https://github.com/iLCSoft/lcgeo.git
