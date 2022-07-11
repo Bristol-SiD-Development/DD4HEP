@@ -1,0 +1,8 @@
+mcpFiles/*
+!mcpFiles/README.md
+
+ddsimFiles/*
+!ddsimFiles/README.md
+
+recoedFiles/*
+!recoedFiles/README.md
