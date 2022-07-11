@@ -1,0 +1,137 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/public/ddsim/!svn/ver/985/lcgeo/trunk/SiD/compact/SiD_o1_v01
+END
+ECalBarrel_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/public/ddsim/!svn/ver/975/lcgeo/trunk/SiD/compact/SiD_o1_v01/ECalBarrel_o1_v01_00.xml
+END
+materials.xml
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/public/ddsim/!svn/ver/877/lcgeo/trunk/SiD/compact/SiD_o1_v01/materials.xml
+END
+BeamPipe.xml
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/public/ddsim/!svn/ver/975/lcgeo/trunk/SiD/compact/SiD_o1_v01/BeamPipe.xml
+END
+HCalBarrel_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/public/ddsim/!svn/ver/975/lcgeo/trunk/SiD/compact/SiD_o1_v01/HCalBarrel_o1_v01_00.xml
+END
+SiVertexEndcap.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/public/ddsim/!svn/ver/947/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiVertexEndcap.xml
+END
+SiTrackerEndcap_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/public/ddsim/!svn/ver/980/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiTrackerEndcap_o1_v01_00.xml
+END
+MuonBarrel_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/public/ddsim/!svn/ver/980/lcgeo/trunk/SiD/compact/SiD_o1_v01/MuonBarrel_o1_v01_00.xml
+END
+Solenoid_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/public/ddsim/!svn/ver/975/lcgeo/trunk/SiD/compact/SiD_o1_v01/Solenoid_o1_v01_00.xml
+END
+SiVertexBarrel.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/public/ddsim/!svn/ver/947/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiVertexBarrel.xml
+END
+SiTrackerEndcap.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/public/ddsim/!svn/ver/980/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiTrackerEndcap.xml
+END
+SiTrackerBarrel_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/public/ddsim/!svn/ver/985/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiTrackerBarrel_o1_v01_00.xml
+END
+ECalEndcap_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/public/ddsim/!svn/ver/975/lcgeo/trunk/SiD/compact/SiD_o1_v01/ECalEndcap_o1_v01_00.xml
+END
+SiD_o1_v01.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/public/ddsim/!svn/ver/980/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiD_o1_v01.xml
+END
+HCalEndcap_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/public/ddsim/!svn/ver/980/lcgeo/trunk/SiD/compact/SiD_o1_v01/HCalEndcap_o1_v01_00.xml
+END
+BeamCal_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/public/ddsim/!svn/ver/963/lcgeo/trunk/SiD/compact/SiD_o1_v01/BeamCal_o1_v01_00.xml
+END
+VTXBarrel.xml
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/public/ddsim/!svn/ver/858/lcgeo/trunk/SiD/compact/SiD_o1_v01/VTXBarrel.xml
+END
+LumiCal_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/public/ddsim/!svn/ver/975/lcgeo/trunk/SiD/compact/SiD_o1_v01/LumiCal_o1_v01_00.xml
+END
+SiTrackerForward.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/public/ddsim/!svn/ver/947/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiTrackerForward.xml
+END
+Support.xml
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/public/ddsim/!svn/ver/858/lcgeo/trunk/SiD/compact/SiD_o1_v01/Support.xml
+END
+elements.xml
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/public/ddsim/!svn/ver/858/lcgeo/trunk/SiD/compact/SiD_o1_v01/elements.xml
+END
+MuonEndcap_o1_v01_00.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/public/ddsim/!svn/ver/979/lcgeo/trunk/SiD/compact/SiD_o1_v01/MuonEndcap_o1_v01_00.xml
+END
+SiTrackerBarrel.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/public/ddsim/!svn/ver/947/lcgeo/trunk/SiD/compact/SiD_o1_v01/SiTrackerBarrel.xml
+END
