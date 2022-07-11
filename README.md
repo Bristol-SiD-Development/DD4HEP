@@ -18,6 +18,20 @@ These instructions assume you are SSHing to a UoB SL7 machine (e.g. sc01) with a
 
 These instructions are based on [those provided by Dr Aidan Robson (Glasgow)](https://twiki.ppe.gla.ac.uk/bin/view/LinearCollider/GlaSiDGettingStarted), which you may find to be more up-to-date but less tailored to our setups.
 
+## Quick start
+```
+mkdir iLC
+cd iLC
+git clone https://github.com/Bristol-SiD-Development/DD4HEP.git
+cd DD4HEP
+git checkout -b developPK origin/developPK
+source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh
+./auto/muonCATscripts/2pT_500_theta85_starter.sh
+```
+You can check the output with
+```
+anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
+```
 ## Installing lcgeo
 Start by setting up your environment. You will have to do this every time you start a new session:
 ```
@@ -90,11 +104,12 @@ This will simulate the events, which can then be reconstructed.
 
 ## Reconstructing events
 
-You will need to have a .xml steering file for use with the Marlin reconstruction software. You can modify reco/SiDReconstruction_test160628.xml, SiDReconstruction_o2_v03_calib1.xml, by changing the following parameters:
+You will need to have a .xml steering file for use with the Marlin reconstruction software. You can modify reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml, by changing the following parameters:
  - LCIOInputFiles: path to the input file (the simulation output file)
  - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
  - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels)
  - LCIOOutputFile: path to the desired output file.
+The file name/path parameters can be eaily found by searching for "EDIT"
 
 Navigate to your lcgeo directory (remember to initialise your environment) and run the example particle gun script:
 ```
