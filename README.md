@@ -85,15 +85,22 @@ ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --i
 ## Reconstructing events - Marlin
 
 Event reconstruction is done with the Marlin package. This to controlled via a .xml steering file which contains the reconstruction modules to be run and the parameters passed to them.
-It is best to work from existing .xmls and tailor them to your needs, so a good start could be to modify a copy of reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml, by changing the following parameters:
-**N.B. relative file paths in the Marlin .xml are relative to the location of the exceution of the *command* (usually recoedFiles) NOT the location of the .xml file**
- - LCIOInputFiles: path to the input file (the simulation output file)
+It is best to work from existing .xmls and tailor them to your needs, so a good start could be to modify a copy of `reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml`, by looking at the following parameters:
+ - LCIOInputFiles: path to the input file (the detector simulation output file, usually in ddsimFiles)
  - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
+ - LCIOOutputFile: path to the desired .slcio output file.
+ - FileName: path to the desired .root histograms output file.
+The three file name/path parameters can be eaily found by searching for "EDIT". 
+
+**N.B. relative file paths in the Marlin .xml are relative to the location of the exceution of the *command* (usually recoedFiles) NOT the location of the .xml file**  
+
+-------------------------------------------------------------------
+
+<!-- More Marlin detail 
+go through starter xml structure and key modules
+How to find module source code and check defualts and required params
+Warnings/erros too many tracks ok - algo doing its thing-->
  - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels)
- - LCIOOutputFile: path to the desired output file.
-The file name/path parameters can be eaily found by searching for "EDIT". 
-
-
 
 ## Qs-breakdown
 In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. 
@@ -131,7 +138,7 @@ or in full detail:
 
 `dumpevent testSiD_o2_v3.slcio [evtNum]`
 
-## Running an example reconstruction
+<!-- ## Running an example reconstruction
 
 In order to run a reconstruction , you need a few files. The standard files can be obtained form from https://github.com/iLCSoft/SiDPerformance. You will need at least SiDReconstruction_o2_v03_calib1.xml (or similar reconstruction files) and gear_sid.xml. PandoraSettings can be ignored if you disable the MyDDMarlinPandora in the execute section of the reconstruction file (not too relevant for tracking). You will need to edit both the reconstruction and gear file so that the relevant file paths are correct for your local files. If you followed the above instructions, LCIOInputFiles is 'testSiD_o2_v03.slcio' and GearXMLFile is gear_sid.xml.  For the compact files, lcgeo/SiD/compact/SiD_o2_v03/SiD_o2_v03.xml is the current version in use (as of September 2018). You can then run the reconstruction:
 ```
@@ -139,9 +146,9 @@ Marlin SiDReconstruction_o2_v03_calib1.xml
 ```
 (Don't worry about the ECal errors: this part of the reconstruction is still under development.)
 
-You should now have a file named 'sitracks.slcio' (or whatever LCIOOutputFile was in the reconstruction file). You can run anajob or dumpevent (see above) to check its contents.
+You should now have a file named 'sitracks.slcio' (or whatever LCIOOutputFile was in the reconstruction file). You can run anajob or dumpevent (see above) to check its contents. -->
 
-# Running the chain
+<!-- # Running the chain
 
 Here are some general instructions for running the simulatiom->reconstruction->analysis chain. First off, you will need to set up your environment (see above). There is an old master initialisation script for this purpose, init/init_master_new.sh, but does not work for the newest version.
 
@@ -153,8 +160,11 @@ Alternatively, if you are a masochist, you can create one from scratch. Then run
 Marlin example.xml
 ```
 
-This will produce a final .slcio file containing the reconstructed tracks, which can then be analysed.
+This will produce a final .slcio file containing the reconstructed tracks, which can then be analysed. -->
 
+# LCIO
+
+.slcio files are the standard file type used to store information at all linear collider experiments. They provide a common persistency format and event data model for all simulation and analysis work.
 # Analysis
 
 Analysis scripts written by Josh Tingey can be found in the analysis directory. See analysis/README.md for information and instructions. (Note: compatibility work on Josh's scripts is still a work in progress.)
