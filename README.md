@@ -45,18 +45,22 @@ alias ilcsoft="source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilc
 ```
 so running `ilcsoft` will setup the environment.
 
+N.B. if an iLCSoft init script is run more than once in a shell session it will cause Marlin duplicate library loading issues. Start over from a clean terminal.
+
 # Running a simulation
 There are three steps in running the full chain. 
 1) Particle generation - particle gun or a physics sample
 2) Detector simulation - via a ddsim command
 3) Reconstruction - via a Marlin command, controlled by a xml script
+
+*File naming conventions are included in the README in the relevant directories.*
 ## Generating input particles
 
 For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. The scripts in this directory are modified from the cannonical script to give sucessive event numbers across a run with multiple momenta.
 
 For physics events (e.g. an ILC collision), you should seek out ready-made input files, ideally in .slcio format. Older ones may use the .stdhep format, which should be compatible but may cause problems in some cases.\
 Some of these can be found at:
-`UPADTE when stored on sc01`
+`###UPADTE when stored on sc01###`
 
 ## Running detector simulation
 
@@ -70,68 +74,62 @@ ddsim --compactFile=../SiD/compact/[GEOMETRY] --runType=batch --inputFile=[INPUT
  - [EVENTS]: the desired number of events (you will of course need to have enough events in the input file!)
  - [OUTPUT PATH]: the path to the desired output file (must be .slcio)
 
-This will simulate the events, which can then be reconstructed with Marlin.\
+This will simulate the events, which can then be reconstructed with Marlin.  
+Make sure to use the correct detector geometry and include this information in the output file name.
 
 Putting this all together, using the quick start example gives
 ```
 ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --inputFile ../mcpFiles/mcparticles_500_2pT_theta85_starter.slcio -N=500 --outputFile=SiD_o2_v03_ddsim_500_2pT_theta85_starter.slcio
 ```
 
-## Reconstructing events
+## Reconstructing events - Marlin
 
-Event reconstruction is done with the Marlin package. This to controlled via a .xml steering file
-You will need to have a .xml steering file for use with the Marlin reconstruction software. You can modify reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml, by changing the following parameters:
+Event reconstruction is done with the Marlin package. This to controlled via a .xml steering file which contains the reconstruction modules to be run and the parameters passed to them.
+It is best to work from existing .xmls and tailor them to your needs, so a good start could be to modify a copy of reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml, by changing the following parameters:
+**N.B. relative file paths in the Marlin .xml are relative to the location of the exceution of the *command* (usually recoedFiles) NOT the location of the .xml file**
  - LCIOInputFiles: path to the input file (the simulation output file)
  - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
  - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels)
  - LCIOOutputFile: path to the desired output file.
-The file name/path parameters can be eaily found by searching for "EDIT"
+The file name/path parameters can be eaily found by searching for "EDIT". 
 
-Navigate to your lcgeo directory (remember to initialise your environment) and run the example particle gun script:
-```
-python example/lcio_particle_gun.py
-```
-Run the simulation with the default geometry and the example input particles you have just generated:
-```
-ddsim --compactFile=SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --inputFile mcparticles.slcio -N=1 --outputFile=testSiD_o2_v03.slcio
-```
-If this has worked, you will now have a file named testSiD_o2_v03.slcio. You can find out what data this output file contains in summary:
-```
-anajob testSiD_o2_v03.slcio
-```
-or in full detail:
-```
-dumpevent testSiD_o2_v3.slcio [evtNum]
-```
-You should now be ready to try running a reconstruction.
+
 
 ## Qs-breakdown
-In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. \
+In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. 
 
 
 `mkdir iLC; cd iLC; git clone ...; cd DD4HEP; git checkout -b developPK origin/developPK` \
-This series of commands makes a directory to clone the Bristol DD4HEP repository into, clones it and then grabs the current working branch.\
+This series of commands makes a directory to clone the Bristol DD4HEP repository into, clones it and then grabs the current working branch. 
 
-`source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh` sets up the iLCSoft environment from the cvmfs distribution mounted to the machine. lcio, DD4hep, Marlin etc. can all now be fetched and used.
+`source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh` sets up the iLCSoft environment from the cvmfs distribution mounted to the machine. LCIO, DD4hep, Marlin etc. can all now be fetched and used.
 
 `./auto/muonCATscripts/2pT_500_theta85_starter.sh` runs a shell script that excecutes the chain in sequence from particle generation, through detector simulation to reconstruction.
 
 **2pT_500_theta85_starter.sh**
+
 The relative paths are set such that the script should be called from the DD4HEP repository root directory.
+`2pT_500_theta85_starter.sh` is broken down in the comments below:
 ```
-\# shebang - required for an excecutable shell script
+# shebang - required for an excecutable shell script
 #!/bin/sh  
 
-\# run particle gun script and output in mcpFiles dir
+# run particle gun script and output in mcpFiles dir
 cd mcpFiles/
 python ../gunScripts/lcio_particle_gun_500_2pT_theta85_starter.py 
-\# run detector simulation on the SiD_o2_v03 geometry and output in ddsimFiles dir
+# run detector simulation on the SiD_o2_v03 geometry and output in ddsimFiles dir
 cd ../ddsimFiles/
 ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --inputFile ../mcpFiles/mcparticles_500_2pT_theta85_starter.slcio -N=500 --outputFile=SiD_o2_v03_ddsim_500_2pT_theta85_starter.slcio 
-\# run Marlin reconstruction and output in recoedFiles dir
+# run Marlin reconstruction and output in recoedFiles dir as directed by the .xml file
 cd ../recoedFiles/
 Marlin ../MarlinXMLs/muon_CAT_studies/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml 
 ```
+## Summary checks
+`anajob testSiD_o2_v03.slcio`
+
+or in full detail:
+
+`dumpevent testSiD_o2_v3.slcio [evtNum]`
 
 ## Running an example reconstruction
 
