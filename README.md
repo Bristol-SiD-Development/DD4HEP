@@ -2,17 +2,6 @@
 
 A repository for work on SiD for use with the DD4hep toolkit, started by Gabriel Penn as a summer student in 2016. Please feel free to direct any queries to gp13181@bristol.ac.uk.
 
-# Directories:
- - init: initialisation scripts for environment setup
- - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
- - gunScripts: particle gun scripts for producing input MC particles
- - mcpFiles: source MC .slcio files to be fed into to ddsim
- - ddsimFiles: detector simulated ddsim .slcio files to be fed into to Marlin
- - MarlinXMLs: reconstruction steering files for Marlin
- - recoedFiles: store reconstructed .slcio and root files
- - analysis: pyLCIO analysis scripts, adapted from Josh Tingey's pixel studies (see pixelStudies repo)
- - auto: miscellaneous shell scripts for submitting multiple jobs or running the full chain
-
 # Getting started
 These instructions assume you are SSHing to a UoB SL7 machine (e.g. sc01) with access to cvmfs. ILCSoft libraries are available on cvmfs, so you will not need to install DD4hep, LCIO, Marlin etc locally.
 
@@ -32,64 +21,45 @@ You can check the output with
 ```
 anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 ```
-## Installing lcgeo
-Start by setting up your environment. You will have to do this every time you start a new session:
-```
-<!-- source /cvmfs/sft.cern.ch/lcg/releases/gcc/4.9.3/x86_64-slc6/setup.sh -->
 
+# Directories:
+ - init: initialisation scripts for environment setup
+ - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
+ - gunScripts: particle gun scripts for producing input MC particles
+ - mcpFiles: source MC .slcio files to be fed into to ddsim
+ - ddsimFiles: detector simulated ddsim .slcio files to be fed into to Marlin
+ - MarlinXMLs: reconstruction steering files for Marlin
+ - recoedFiles: store reconstructed .slcio and root files
+ - analysis: pyLCIO analysis scripts, adapted from Josh Tingey's pixel studies (see pixelStudies repo)
+ - auto: miscellaneous shell scripts for submitting multiple jobs or running the full chain
+
+
+## ilcsoft environment
+Start by setting up your environment. You will have to do this every time you start a new session, either with
+```
 source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh
 ```
-Or add the following to your ~/.bashrc: (remeber to restart shell session after)
+... or more efficiently by adding the following to your ~/.bashrc: (remeber to restart shell session after)
 ```
 alias ilcsoft="source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh"
 ```
 so running `ilcsoft` will setup the environment.
 
------------------------------------------------------------------------------
-Navigate to the directory in which you wish to install lcgeo and checkout the source code:
-```
-git clone https://github.com/iLCSoft/lcgeo.git
-```
-Remove some unfinished calorimeter files:
-```
-rm lcgeo/detector/calorimeter/SHcal*
-rm lcgeo/detector/calorimeter/SEcal*
-rm lcgeo/detector/CaloTB/CaloPrototype*
-```
-Create and move to the build directory:
-```
-mkdir lcgeo/build
-cd lcgeo/build
-```
-Make the installation:
-```
-cmake -DCMAKE_CXX_COMPILER=$(which g++) -DCMAKE_C_COMPILER=$(which gcc) -C /cvmfs/ilc.desy.de/sw/x86_64_gcc49_sl6/v02-00-01/ILCSoft.cmake ..
-cmake -DCMAKE_CXX_COMPILER=$(which g++) -DCMAKE_C_COMPILER=$(which gcc) -DILCUTIL_DIR=/cvmfs/ilc.desy.de/sw/x86_64_gcc49_sl6/v02-00-01/ILCSoft.cmake -C $ILCSOFT/ILCSoft.cmake ..
-make -j4
-make install
-```
-If this runs without throwing any errors, you should now be able to run the example simulation.
-Note: The Glasgow instructions suggests running:
-```
-source ../bin.thislcgeo.sh
-```
-but running it will cause ddsim to not work (something to do with PYTHONPATH priorites).
-
------------------------------------------------------------------------------
 # Running a simulation
 There are three steps in running the full chain. 
 1) Particle generation - particle gun or a physics sample
 2) Detector simulation - via a ddsim command
-3) Reconstruction - via a Marlin command, controlled by an xml script
+3) Reconstruction - via a Marlin command, controlled by a xml script
 ## Generating input particles
 
-For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. These are modified from the standard script to give sucessive event numbers.
+For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. The scripts in this directory are modified from the cannonical script to give sucessive event numbers across a run with multiple momenta.
 
-For physics events (e.g. an ILC collision), you may need to seek out ready-made input files, ideally in .slcio format. Older ones may use the .stdhep format, which should be compatible but may cause problems in some cases.
+For physics events (e.g. an ILC collision), you should seek out ready-made input files, ideally in .slcio format. Older ones may use the .stdhep format, which should be compatible but may cause problems in some cases.\
+Some of these can be found at:
+`UPADTE when stored on sc01`
 
 ## Running a simulation
 
-<!-- From the lcgeo directory, run the following: -->
 From the DD4HEP directory, run the following:
 
 ```
