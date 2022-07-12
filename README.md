@@ -21,7 +21,7 @@ You can check the output with
 ```
 anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 ```
-For the detail of what is happening in these commands go to [Qs-breakdown](##Qs-breakdown)
+For the detail of what is happening in these commands go to the [Qs-breakdown](##Qs-breakdown) section.
 # Directories:
  - init: initialisation scripts for environment setup
  - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
@@ -106,6 +106,29 @@ dumpevent testSiD_o2_v3.slcio [evtNum]
 You should now be ready to try running a reconstruction.
 
 ## Qs-breakdown
+In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. \
+`mkdir iLC; cd iLC; git clone ...; cd DD4HEP; git checkout -b developPK origin/developPK` \
+This series of commands makes a directory to clone the Bristol DD4HEP repository into, clones it and then grabs the current working branch.\
+`source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh` sets up the iLCSoft environment from the cvmfs distribution mounted to the machine. lcio, DD4hep, Marlin etc. can all now be fetched and used.
+`./auto/muonCATscripts/2pT_500_theta85_starter.sh` runs a shell script that excecutes the chain in sequence from partucle generation, through detector simulation to reconstruction.
+
+**2pT_500_theta85_starter.sh**
+The relative paths are set such that the script should be called from the DD4HEP repository root directory.
+'''
+\# shebang - required for an excecutable shell script
+#!/bin/sh  
+
+\# run particle gun script and output in mcpFiles dir
+cd mcpFiles/
+python ../gunScripts/lcio_particle_gun_500_2pT_theta85_starter.py 
+\# run detector simulation on the SiD_o2_v03 geometry and output in ddsimFiles dir
+cd ../ddsimFiles/
+ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --inputFile ../mcpFiles/mcparticles_500_2pT_theta85_starter.slcio -N=500 --outputFile=SiD_o2_v03_ddsim_500_2pT_theta85_starter.slcio 
+\# run Marlin reconstruction and output in recoedFiles dir
+cd ../recoedFiles/
+Marlin ../MarlinXMLs/muon_CAT_studies/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml 
+```
+
 ## Running an example reconstruction
 
 In order to run a reconstruction , you need a few files. The standard files can be obtained form from https://github.com/iLCSoft/SiDPerformance. You will need at least SiDReconstruction_o2_v03_calib1.xml (or similar reconstruction files) and gear_sid.xml. PandoraSettings can be ignored if you disable the MyDDMarlinPandora in the execute section of the reconstruction file (not too relevant for tracking). You will need to edit both the reconstruction and gear file so that the relevant file paths are correct for your local files. If you followed the above instructions, LCIOInputFiles is 'testSiD_o2_v03.slcio' and GearXMLFile is gear_sid.xml.  For the compact files, lcgeo/SiD/compact/SiD_o2_v03/SiD_o2_v03.xml is the current version in use (as of September 2018). You can then run the reconstruction:
