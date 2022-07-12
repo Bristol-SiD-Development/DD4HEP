@@ -21,7 +21,7 @@ You can check the output with
 ```
 anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 ```
-For the detail of what is happening in these commands go to [Qs-breakdown] (#Qs-breakdown)
+For the detail of what is happening in these commands go to [Qs-breakdown](##Qs-breakdown)
 # Directories:
  - init: initialisation scripts for environment setup
  - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
