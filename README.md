@@ -21,7 +21,7 @@ You can check the output with
 ```
 anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 ```
-
+For the detail of what is happening in these commands go to [Qs breakdown] (#Qs breakdown)
 # Directories:
  - init: initialisation scripts for environment setup
  - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
@@ -79,6 +79,7 @@ ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --i
 
 ## Reconstructing events
 
+Event reconstruction is done with the Marlin package. This to controlled via a .xml steering file
 You will need to have a .xml steering file for use with the Marlin reconstruction software. You can modify reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml, by changing the following parameters:
  - LCIOInputFiles: path to the input file (the simulation output file)
  - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
@@ -100,10 +101,11 @@ anajob testSiD_o2_v03.slcio
 ```
 or in full detail:
 ```
-dumpevent testSiD_o2_v3.slcio 1
+dumpevent testSiD_o2_v3.slcio [evtNum]
 ```
 You should now be ready to try running a reconstruction.
 
+## Qs breakdown
 ## Running an example reconstruction
 
 In order to run a reconstruction , you need a few files. The standard files can be obtained form from https://github.com/iLCSoft/SiDPerformance. You will need at least SiDReconstruction_o2_v03_calib1.xml (or similar reconstruction files) and gear_sid.xml. PandoraSettings can be ignored if you disable the MyDDMarlinPandora in the execute section of the reconstruction file (not too relevant for tracking). You will need to edit both the reconstruction and gear file so that the relevant file paths are correct for your local files. If you followed the above instructions, LCIOInputFiles is 'testSiD_o2_v03.slcio' and GearXMLFile is gear_sid.xml.  For the compact files, lcgeo/SiD/compact/SiD_o2_v03/SiD_o2_v03.xml is the current version in use (as of September 2018). You can then run the reconstruction:
