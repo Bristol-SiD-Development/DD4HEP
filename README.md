@@ -34,7 +34,7 @@ anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
  - auto: miscellaneous shell scripts for submitting multiple jobs or running the full chain
 
 
-## ilcsoft environment
+## iLCSoft environment
 Start by setting up your environment. You will have to do this every time you start a new session, either with
 ```
 source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh
@@ -58,19 +58,24 @@ For physics events (e.g. an ILC collision), you should seek out ready-made input
 Some of these can be found at:
 `UPADTE when stored on sc01`
 
-## Running a simulation
+## Running detector simulation
 
-From the DD4HEP directory, run the following:
+From the ddsimFiles directory, run the following:
 
 ```
-ddsim --compactFile=compact/[GEOMETRY] --runType=batch --inputFile=[INPUT PATH] -N=[EVENTS] --outputFile=[OUTPUT PATH]
+ddsim --compactFile=../SiD/compact/[GEOMETRY] --runType=batch --inputFile=[INPUT PATH] -N=[EVENTS] --outputFile=[OUTPUT PATH]
 ```
  - [GEOMETRY]: the path to the master .xml file for the chosen geometry
- - [INPUT PATH]: the path to the .slcio file containing the input particles
+ - [INPUT PATH]: the path to the .slcio file containing the input particles. These should be contained in the mcpFiles directory
  - [EVENTS]: the desired number of events (you will of course need to have enough events in the input file!)
  - [OUTPUT PATH]: the path to the desired output file (must be .slcio)
 
-This will simulate the events, which can then be reconstructed.
+This will simulate the events, which can then be reconstructed with Marlin.\
+
+Putting this all together, using the quick start example gives
+```
+ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --inputFile ../mcpFiles/mcparticles_500_2pT_theta85_starter.slcio -N=500 --outputFile=SiD_o2_v03_ddsim_500_2pT_theta85_starter.slcio
+```
 
 ## Reconstructing events
 
