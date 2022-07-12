@@ -107,14 +107,18 @@ You should now be ready to try running a reconstruction.
 
 ## Qs-breakdown
 In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. \
+
+
 `mkdir iLC; cd iLC; git clone ...; cd DD4HEP; git checkout -b developPK origin/developPK` \
 This series of commands makes a directory to clone the Bristol DD4HEP repository into, clones it and then grabs the current working branch.\
+
 `source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh` sets up the iLCSoft environment from the cvmfs distribution mounted to the machine. lcio, DD4hep, Marlin etc. can all now be fetched and used.
-`./auto/muonCATscripts/2pT_500_theta85_starter.sh` runs a shell script that excecutes the chain in sequence from partucle generation, through detector simulation to reconstruction.
+
+`./auto/muonCATscripts/2pT_500_theta85_starter.sh` runs a shell script that excecutes the chain in sequence from particle generation, through detector simulation to reconstruction.
 
 **2pT_500_theta85_starter.sh**
 The relative paths are set such that the script should be called from the DD4HEP repository root directory.
-'''
+```
 \# shebang - required for an excecutable shell script
 #!/bin/sh  
 
