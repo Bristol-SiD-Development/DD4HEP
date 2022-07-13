@@ -21,7 +21,7 @@ You can check the output with
 ```
 anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 ```
-For the detail of what is happening in these commands go to the [Qs-breakdown](##Qs-breakdown) section.
+For the detail of what is happening in these commands go to the [QS-breakdown](#qs-breakdown) section.
 # Directories:
  - init: initialisation scripts for environment setup
  - SiD/compact: detector descriptions (adapted from the SiD description included with lcgeo)
@@ -34,7 +34,7 @@ For the detail of what is happening in these commands go to the [Qs-breakdown](#
  - auto: miscellaneous shell scripts for submitting multiple jobs or running the full chain
 
 
-## iLCSoft environment
+# iLCSoft environment
 Start by setting up your environment. You will have to do this every time you start a new session, either with
 ```
 source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh
@@ -84,8 +84,8 @@ ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --i
 
 ## Reconstructing events - Marlin
 
-Event reconstruction is done with the Marlin package. This to controlled via a .xml steering file which contains the reconstruction modules to be run and the parameters passed to them.
-It is best to work from existing .xmls and tailor them to your needs, so a good start could be to modify a copy of `reco/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml`, by looking at the following parameters:
+Event reconstruction is done with the Marlin package. This to controlled via a .xml steering file which states the reconstruction modules to be run and the parameters passed to them.
+It is best to work from existing .xmls and tailor them to your needs, so a good start could be to modify a copy of `MarlinXMLs/muon_CAT_studies/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml` by looking at the following parameters:
  - LCIOInputFiles: path to the input file (the detector simulation output file, usually in ddsimFiles)
  - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
  - LCIOOutputFile: path to the desired .slcio output file.
@@ -95,14 +95,32 @@ The three file name/path parameters can be eaily found by searching for "EDIT".
 **N.B. relative file paths in the Marlin .xml are relative to the location of the exceution of the *command* (usually recoedFiles) NOT the location of the .xml file**  
 
 -------------------------------------------------------------------
+### Marlin .xml breakdown
 
 <!-- More Marlin detail 
 go through starter xml structure and key modules
 How to find module source code and check defualts and required params
 Warnings/erros too many tracks ok - algo doing its thing-->
- - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels)
+ <!-- - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels) -->
 
-## Qs-breakdown
+Marlin works by running a sucession of processor modules (written in C+, distributed via /cvmfs/). The path to these modules is set via the `init_ilcsoft.sh` environment script. This path can be checked by looking at the Marlin libray list path variable with `echo $MARLIN_DLL`.  
+
+The code for the modules can be found in the subdirectories of the `$ILCSOFT` directory or on the [iLCSoft GitHub](https://github.com/iLCSoft) page by searching for the relevant repository name. It is worth looking at both the header files and the main file to see all parameters and their defaults as they are not always given in the .xml. The defaults also provide clues on how and what to pass as parameters in the .xml.
+
+If you need to edit the modules please see [Editing Marlin modules](#editing-marlin-modules).
+
+A Marlin .xml has three main sections, the **execute** block, the **global** block and the **processor** blocks.  
+
+The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. The given name in the **execute** block must corespond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
+
+The **global** block defines global variables to be used across all processors, notably the input detector simulated .slcio file and the gear .xml file. Which event numbers to run on are also controlled here.
+
+What follows is a **processor** block for each module you want to run. Extra **processor** blocks may safely be left in a .xml for future use as they have no effect if not called in the **execute** block.
+
+
+### Editing Marlin modules
+!!!!Info on cloneing e.g. clic repo for edit and use. add to DLL etc.!!!
+# QS breakdown
 In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. 
 
 
@@ -163,8 +181,12 @@ Marlin example.xml
 This will produce a final .slcio file containing the reconstructed tracks, which can then be analysed. -->
 
 # LCIO
-
+<!-- collections 
+getter methods
+anajob useful for collections -->
 .slcio files are the standard file type used to store information at all linear collider experiments. They provide a common persistency format and event data model for all simulation and analysis work.
+
+
 # Analysis
 
 Analysis scripts written by Josh Tingey can be found in the analysis directory. See analysis/README.md for information and instructions. (Note: compatibility work on Josh's scripts is still a work in progress.)
