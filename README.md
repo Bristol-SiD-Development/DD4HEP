@@ -94,16 +94,12 @@ The three file name/path parameters can be eaily found by searching for "EDIT".
 
 **N.B. relative file paths in the Marlin .xml are relative to the location of the exceution of the *command* (usually recoedFiles) NOT the location of the .xml file**  
 
+Warnings/errors about too many tracks being created are ok - this is the conformal algorithm doing it's job and it will change its parameters to help.
+
 -------------------------------------------------------------------
 ### Marlin .xml breakdown
 
-<!-- More Marlin detail 
-go through starter xml structure and key modules
-How to find module source code and check defualts and required params
-Warnings/erros too many tracks ok - algo doing its thing-->
- <!-- - Under InnerPlanarDigiProcessor, ResolutionU and ResolutionV: the tracker's resolution in the u and v directions (change these e.g. to approximate pixels) -->
-
-Marlin works by running a sucession of processor modules (written in C+, distributed via /cvmfs/). The path to these modules is set via the `init_ilcsoft.sh` environment script. This path can be checked by looking at the Marlin libray list path variable with `echo $MARLIN_DLL`.  
+Marlin works by running a sucession of processor modules (written in C++, mostly distributed via /cvmfs/). The path to these modules is set via the `init_ilcsoft.sh` environment script. This path can be checked by looking at the Marlin libray list path variable with `echo $MARLIN_DLL`. The two 'steup' modules and the 'output' module should always be used and in their given order. Any combination of other modules can be used in between. 
 
 The code for the modules can be found in the subdirectories of the `$ILCSOFT` directory or on the [iLCSoft GitHub](https://github.com/iLCSoft) page by searching for the relevant repository name. It is worth looking at both the header files and the main file to see all parameters and their defaults as they are not always given in the .xml. The defaults also provide clues on how and what to pass as parameters in the .xml.
 
@@ -111,12 +107,49 @@ If you need to edit the modules please see [Editing Marlin modules](#editing-mar
 
 A Marlin .xml has three main sections, the **execute** block, the **global** block and the **processor** blocks.  
 
-The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. The given name in the **execute** block must corespond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
+The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. This allows the same module to be run with differnt inputs or parameters under a different name in the .xml file. The given name in the **execute** block must corespond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
 
 The **global** block defines global variables to be used across all processors, notably the input detector simulated .slcio file and the gear .xml file. Which event numbers to run on are also controlled here.
 
-What follows is a **processor** block for each module you want to run. Extra **processor** blocks may safely be left in a .xml for future use as they have no effect if not called in the **execute** block.
+What follows is a **processor** block for each module you want to run. The order of these blocks is immaterial. Extra **processor** blocks may safely be left in a .xml for future use as they have no effect if not called in the **execute** block.  
+The first line of the block has the form 
+```
+<processor name="[Name given in execute]" type="[Name of module]">
+```
+ The name *must* match that used in the **execute** block, the type *must* match the name of the module as it appears in the iLCSoft source directory, e.g. 
+ ```
+ <processor name="MyConformalTracking" type="ConformalTracking">
+ ```
+ corresponds to a module in `/cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/ConformalTracking/v01-10/src`.
 
+A parameter is fully defined in the module C++ source code and header files, and to find what should go in the Marlin .xml takes a little decoding.  
+In the header file the C++ type of all the named member variables (m_variableName) is found i.e. `std::vector<std::string>` which coresponds to a Marlin `type="StringVec"`. Look through .xml files to find examples of the correct 'Marlin type' terms.  
+This member variable can then be found in the main C++ file in a 'register' function which has the structure:
+```
+registerFunction("xml keyword", "Parameter description", m_variableName, default value)
+```
+
+Taking three examples from the starter Marlin .xml, we can see parameters are set in the .xml in the following way:
+```
+<parameter name="TrackerHitCollectionNames" type="StringVec" lcioInType="TrackerHitPlane"> SiVertexBarrelHitsPlanes SiVertexEndcapHitsPlanes SiTrackerBarrelHitsPlanes SiTrackerEndcapHitsPlanes </parameter>
+
+<parameter name="RelationsNames" type="StringVec" lcioInType="LCRelation"> SiVertexBarrelHitsRelations SiVertexEndcapHitsRelations SiTrackerBarrelHitsRelations SiTrackerEndcapHitsRelations</parameter>
+
+<parameter name="ThetaRange" type="double"> 0.025 </parameter>
+
+# Or summarised as...
+
+<parameter name="[xml keyword]" type="[C++ (LCIO version) object type]" lcioInType="[LCIO object type]"> [Parameter value(s)] </parameter>
+```
+There are a few points to note...  
+
+1) A lcioType is not always required. It is needed for LCIO structures (see the [LCIO section](#lcio)), but not for native C++ types (see difference between first two and third example above).  
+2) **Order is important** - within a **processsor** block the order in which collections are passed to a parameter *must* correspond to the order for another parameter. This is seen in the order of hit collections being the same as the order of the hit relation collections in the above snippet.   
+3) The xml keyword in the Marlin .xml file must be exactly as defined in the source C++ code.
+4) Not all parameters will be set in the Marlin .xml file, many have sensible defaults so do not appear in a processor block. This makes it important to check the source code to know what a module is up to and if you will ever need to change them.
+
+### Pixel size studies
+Tracker pixels can be approximated without modifying the geometry files by changing the resolution parameters in the `DDPlanarDigiProcessor` modules. `ResolutionU` and `ResolutionV` are the tracker's resolution in the u and v directions so can be modified for different subdetectors and pixel sizes. 
 
 ### Editing Marlin modules
 !!!!Info on cloneing e.g. clic repo for edit and use. add to DLL etc.!!!
