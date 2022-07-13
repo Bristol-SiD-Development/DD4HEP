@@ -139,12 +139,15 @@ The relative paths are set such that the script should be called from the DD4HEP
 # shebang - required for an excecutable shell script
 #!/bin/sh  
 
+
 # run particle gun script and output in mcpFiles dir
 cd mcpFiles/
 python ../gunScripts/lcio_particle_gun_500_2pT_theta85_starter.py 
+
 # run detector simulation on the SiD_o2_v03 geometry and output in ddsimFiles dir
 cd ../ddsimFiles/
 ddsim --compactFile=../SiD/compact/SiD_o2_v03/SiD_o2_v03.xml --runType=batch --inputFile ../mcpFiles/mcparticles_500_2pT_theta85_starter.slcio -N=500 --outputFile=SiD_o2_v03_ddsim_500_2pT_theta85_starter.slcio 
+
 # run Marlin reconstruction and output in recoedFiles dir as directed by the .xml file
 cd ../recoedFiles/
 Marlin ../MarlinXMLs/muon_CAT_studies/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml 
