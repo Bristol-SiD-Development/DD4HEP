@@ -186,11 +186,18 @@ cd ../recoedFiles/
 Marlin ../MarlinXMLs/muon_CAT_studies/mySiDReconstruction_o2_v03_calib1_500_2pT_theta85_starter.xml 
 ```
 ## Summary checks
-`anajob testSiD_o2_v03.slcio`
 
-or in full detail:
+There are two useful commands to quickly inspect a .slcio file. They can be used to look at a .slcio file at any stage of the chain and will give the relevant information available in each case.  
 
-`dumpevent testSiD_o2_v3.slcio [evtNum]`
+`anajob [PATH TO FILE]` is useful to check LCIO collection names, LCIO object types and gives basic information about each event in an entire file. 
+
+`dumpevent [PATH TO FILE] [evtNum]` provides highly detailed information about a single event in a .slcio file for every LCIO type recorded in the event. 
+
+Both usually output large amounts of text so it is easiest to pipe stdout to a text file, e.g.
+```
+anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
+dumpevent recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio 4 > devt.txt
+```
 
 <!-- ## Running an example reconstruction
 
@@ -219,7 +226,8 @@ This will produce a final .slcio file containing the reconstructed tracks, which
 # LCIO
 <!-- collections 
 getter methods
-anajob useful for collections -->
+anajob useful for collections
+Move this upwrds - maybe after env setup? -->
 .slcio files are the standard file type used to store information at all linear collider experiments. They provide a common persistency format and event data model for all simulation and analysis work.
 
 
