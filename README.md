@@ -199,14 +199,7 @@ anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 dumpevent recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio 4 > devt.txt
 ```
 
-<!-- ## Running an example reconstruction
-
-In order to run a reconstruction , you need a few files. The standard files can be obtained form from https://github.com/iLCSoft/SiDPerformance. You will need at least SiDReconstruction_o2_v03_calib1.xml (or similar reconstruction files) and gear_sid.xml. PandoraSettings can be ignored if you disable the MyDDMarlinPandora in the execute section of the reconstruction file (not too relevant for tracking). You will need to edit both the reconstruction and gear file so that the relevant file paths are correct for your local files. If you followed the above instructions, LCIOInputFiles is 'testSiD_o2_v03.slcio' and GearXMLFile is gear_sid.xml.  For the compact files, lcgeo/SiD/compact/SiD_o2_v03/SiD_o2_v03.xml is the current version in use (as of September 2018). You can then run the reconstruction:
-```
-Marlin SiDReconstruction_o2_v03_calib1.xml
-```
-(Don't worry about the ECal errors: this part of the reconstruction is still under development.)
-
+<!-- 
 You should now have a file named 'sitracks.slcio' (or whatever LCIOOutputFile was in the reconstruction file). You can run anajob or dumpevent (see above) to check its contents. -->
 
 <!-- # Running the chain
@@ -228,7 +221,16 @@ This will produce a final .slcio file containing the reconstructed tracks, which
 getter methods
 anajob useful for collections
 Move this upwrds - maybe after env setup? -->
-.slcio files are the standard file type used to store information at all linear collider experiments. They provide a common persistency format and event data model for all simulation and analysis work.
+
+LCIO (**L**inear **C**ollider **I/O**) is a persistency framework and event data model for linear collider detector studies used across different linear collider experiments. This format is used for for all simulation and analysis work.
+
+LCIO is based on the idea of having a named 'Collection' (group of objects) of a given type (or data entitiy) to store information. Each data entity has associated 'getter methods' which can be called to extract information from an object or to move to an associated object of a different entity type. These enities and getter methods are shown below. The arrows indicate types that you can move between with a getter method. These relationships may also be coded in via a *LCRelation* (see centre of diagram), for example a relation is often added from a *SimTrackerHit -> TrackerHit*. 
+
+![getter methods](methods.png)
+
+The [anajob](#summary-checks) command is the best way to find the Collection names and types in your sample. 
+
+## Track parameters
 
 
 # Analysis
