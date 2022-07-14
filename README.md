@@ -46,6 +46,20 @@ alias ilcsoft="source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilc
 so running `ilcsoft` will setup the environment.
 
 N.B. if an iLCSoft init script is run more than once in a shell session it will cause Marlin duplicate library loading issues. Start over from a clean terminal.
+# LCIO
+
+LCIO (**L**inear **C**ollider **I/O**) is a persistency framework and event data model for linear collider detector studies used across different linear collider experiments. This format is used for for all simulation and analysis work on this project at Bristol. A file in this format has the `.slcio` extension.
+
+LCIO is based on the idea of having a named 'Collection' (associated group of objects) of a given type (or data entitiy) to store information. The Collections are generally named in the underlying C++ code. Each data entity has associated 'getter methods' which can be called to extract information from an object or to move to an associated object of a different entity type (e.g. from a Simulated hit to the Monte Carlo particle that caused it). These enities and getter methods are shown below. The arrows indicate types that you can move between with a getter method, this ability to move beetween types is a result of a 'relation'. These relations may also be coded in via a *LCRelation* (see centre of diagram), for example a relation is often added from a *SimTrackerHit -> TrackerHit*. Note that when moving from one type to another the getter method often only returns a pointer or refernce to the first elememt of the new type (c.f. the underlying C++), which you then have to iterate through.
+
+The [anajob](#summary-checks) command is the best way to find the Collection names and types in your sample. 
+
+![getter methods](methods.png)
+
+Further detail on LCIO can be found [here](https://inspirehep.net/files/b4997a1c1ef975c1c91a4d462c101267) - including a couple of helpful diagrams for getting your head around the format and the differnces between groups of data entities.
+
+Full definitions of the LCIO object types and their getter methods (member functions) the [documentation](https://ilcsoft.desy.de/LCIO/current/doc/doxygen_api/html/namespaceEVENT.html) page is useful.
+
 
 # Running a simulation
 There are three steps in running the full chain. 
@@ -215,20 +229,6 @@ Marlin example.xml
 ```
 
 This will produce a final .slcio file containing the reconstructed tracks, which can then be analysed. -->
-
-# LCIO
-<!-- collections 
-getter methods
-anajob useful for collections
-Move this upwrds - maybe after env setup? -->
-
-LCIO (**L**inear **C**ollider **I/O**) is a persistency framework and event data model for linear collider detector studies used across different linear collider experiments. This format is used for for all simulation and analysis work.
-
-LCIO is based on the idea of having a named 'Collection' (group of objects) of a given type (or data entitiy) to store information. Each data entity has associated 'getter methods' which can be called to extract information from an object or to move to an associated object of a different entity type. These enities and getter methods are shown below. The arrows indicate types that you can move between with a getter method. These relationships may also be coded in via a *LCRelation* (see centre of diagram), for example a relation is often added from a *SimTrackerHit -> TrackerHit*. 
-
-![getter methods](methods.png)
-
-The [anajob](#summary-checks) command is the best way to find the Collection names and types in your sample. 
 
 ## Track parameters
 
