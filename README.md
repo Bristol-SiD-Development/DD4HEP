@@ -60,6 +60,31 @@ Further detail on LCIO can be found [here](https://inspirehep.net/files/b4997a1c
 
 Full definitions of the LCIO object types and their getter methods (member functions) the [documentation](https://ilcsoft.desy.de/LCIO/current/doc/doxygen_api/html/namespaceEVENT.html) page is useful.
 
+## Track parameters
+
+The tracking system is inside the solenoid, so all charged particles trace ~ a helix in the detector. It is the aim of the tracking system to reconstruct the path of the particles by determining this helix. 
+
+In LCIO the track helix is defined by five track parmameters as rigorously detailed [here](https://bib-pubdb1.desy.de/record/81214/files/LC-DET-2006-004%5B1%5D.pdf). 
+
+In the *(x, y)* plane (where the charged particle moves along a circle)
+>$Ω=R^−1$, the radius of curvature where R is the radius. \
+$d_0$, the transverse impact parameter in *(x, y)* - how close the track gets to the reference point. \
+$φ_0$, the azimuthal angle φ at closest approach in *(x, y)* - the direction of the track's momentum at point of closest aproach to the reference point. 
+
+In the *(s, z)* plane (where the charged particle moves along a striaght line):
+> $tan λ= ds/dz$, the ratio of arc length (*s*) to z traversed. \
+ $z_0$, the azimuthal impact parameter in *z* - how close the track gets to the reference point.   
+
+N.B. In SiD the reference point is taken as the centre of the detector which is defined as *(0, 0, 0)* in the coordinate system. For most purposes this can also be taken as the machine interaction point.  
+
+Physics properties are derived from the five track parmeters as follows: \
+>$p_T = c \times 10^{-15} \cdot|\frac{B_z}{Ω}|$, with *c* in *mm/s*, the field in Tesla giving $p_T$ in *GeV/c*. \
+$p = p_T ({1+tan^2λ})^{0.5}$, giving *p* in *GeV/c*. \
+$θ_0 = \frac{π}{2} -arctan(tanλ)$. \
+$φ_0$ is  a track parameter (so available for free). \
+The sign of the charge of the particle is related to the direction of th *b* field and the sign of $Ω$.
+
+Note: What we refer to as the θ and φ of a track are taken to be that at the point of closest approach to the refernce point (origin) i.e. the point where most particles originate from -> $θ_0$ and $φ_0$ from above.
 
 # Running a simulation
 There are three steps in running the full chain. 
@@ -67,7 +92,7 @@ There are three steps in running the full chain.
 2) Detector simulation - via a ddsim command
 3) Reconstruction - via a Marlin command, controlled by a xml script
 
-*File naming conventions are included in the README in the relevant directories.*
+> File naming conventions are included in the README in the relevant directories.
 ## Generating input particles
 
 For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. The scripts in this directory are modified from the cannonical script to give sucessive event numbers across a run with multiple momenta.
@@ -121,7 +146,7 @@ If you need to edit the modules please see [Editing Marlin modules](#editing-mar
 
 A Marlin .xml has three main sections, the **execute** block, the **global** block and the **processor** blocks.  
 
-The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. This allows the same module to be run with differnt inputs or parameters under a different name in the .xml file. The given name in the **execute** block must corespond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
+The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. This allows the same module to be run with different inputs or parameters under a different name in the .xml file. The given name in the **execute** block must corespond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
 
 The **global** block defines global variables to be used across all processors, notably the input detector simulated .slcio file and the gear .xml file. Which event numbers to run on are also controlled here.
 
@@ -212,26 +237,6 @@ Both usually output large amounts of text so it is easiest to pipe stdout to a t
 anajob recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio > anaj.txt
 dumpevent recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio 4 > devt.txt
 ```
-
-<!-- 
-You should now have a file named 'sitracks.slcio' (or whatever LCIOOutputFile was in the reconstruction file). You can run anajob or dumpevent (see above) to check its contents. -->
-
-<!-- # Running the chain
-
-Here are some general instructions for running the simulatiom->reconstruction->analysis chain. First off, you will need to set up your environment (see above). There is an old master initialisation script for this purpose, init/init_master_new.sh, but does not work for the newest version.
-
-
- 
-Alternatively, if you are a masochist, you can create one from scratch. Then run your reconstruction using Marlin, e.g.
-
-```
-Marlin example.xml
-```
-
-This will produce a final .slcio file containing the reconstructed tracks, which can then be analysed. -->
-
-## Track parameters
-
 
 # Analysis
 
