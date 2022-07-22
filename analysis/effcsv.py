@@ -1,7 +1,12 @@
 #--------------------------------------------------------------
 # TODO command line input for best track selection criteria
 # TODO sequential evt numbers - Done - check this
-# TODO commadn line input to select track clollection used
+# TODO command line input to select track clollection used
+# TODO tidy info similar/shared functions as in processTrkscsv
+# 		common function script?
+# TODO selection of best trk - purity then mom (as in processTrkscsv)?
+# 		not matter as only care wether or not get A good trk for mcp,
+#		not which one it is? But nice to be consistent?
 #--------------------------------------------------------------
 from __future__ import division
 from collections import Counter, OrderedDict
@@ -105,7 +110,6 @@ def get_data(infile, outfile):
 
 		# pyLCIO routine to use getter methods to read from `.slcio`
 		reader = IOIMPL.LCFactory.getInstance().createLCReader()
-		# reader.open(str(infile[i]))
 		reader.open(str(inFi))
 
 		for event in reader:
@@ -120,7 +124,7 @@ def get_data(infile, outfile):
 			trkEndHits = event.getCollection('SiTrackerEndcapHits')
 			trkEndHitsRels = event.getCollection('SiTrackerEndcapHitsRelations')
 			# evtNum = event.getEventNumber()
-			# print(evtNum)
+			
 			for mcp in MCParticles:
 				# flag to indicate if track is found for this MCP
 				trackFound = False
@@ -145,11 +149,11 @@ def get_data(infile, outfile):
 					for simHits, hRel in zip(simHitCol, hitRel):
 						if simHits.getMCParticle() == mcp:
 							# print("Matched simHit to this MCParticle")
-							print("hitRel gives: ", hRel.getFrom())
+							# print("hitRel gives: ", hRel.getFrom())
 							trkHitsAssociatedWithThisMCParticle.append(hRel.getFrom())
 					# end loop over the simHits & hitRelations
 				# end loop over simHits & hitsRealtions COLLECTIONS
-				# print(len(trkHitsAssociatedWithThisMCParticle), 'trkHitsAssociatedWithThisMCParticle: ', trkHitsAssociatedWithThisMCParticle)
+				
 				# Now have list with all the tracker hits associated with the given MCParticle 
 				tracks = event.getCollection('CATracks')
 				for track in tracks:
@@ -157,11 +161,9 @@ def get_data(infile, outfile):
 					trackHits = track.getTrackerHits()
 					for i in trackHits:
 						hitsOnTrack.append(i)
-					# print(len(hitsOnTrack),'hitsOnTrack: ', hitsOnTrack)
-					# goodHits = set(trkHitsAssociatedWithThisMCParticle).intersection(set(hitsOnTrack))
+					
 					goodHits = [x for x in hitsOnTrack if x in trkHitsAssociatedWithThisMCParticle]
 					purity = (len(goodHits))/(len(hitsOnTrack))
-					# print(len(goodHits),'goodHits: ', goodHits)
 					if purity > 0.8: # TODO add cmd line option to set this value or other param
 									# e.g. n goodHits > value
 						trackFound = True
@@ -175,11 +177,11 @@ def get_data(infile, outfile):
 						goodTrksPhi.append(extract_track_properties(track)[2])
 						goodTrksTheta.append(extract_track_properties(track)[3])
 				# end loop over tracks 
+				
 				# Select good trk with highest momentum
 				if trackFound:
 					maxMom = max(goodTrksMom)
 					maxIndex = goodTrksMom.index(maxMom) # could cause issue if identical values (v. unlikely?)
-					# print('goodTrksMom:', goodTrksMom, '\nmaxMom:', maxMom, 'maxIndex:', maxIndex)
 					datadict['nGoodHits'].append(goodTrksnGoodHits[maxIndex])
 					datadict['nHits'].append(goodTrksnHits[maxIndex])
 					datadict['trkPurity'].append(goodTrksPurity[maxIndex])

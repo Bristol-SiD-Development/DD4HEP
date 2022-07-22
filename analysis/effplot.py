@@ -6,9 +6,6 @@ import math
 from matplotlib.font_manager import FontProperties
 import sys
 
-# df_20 = pd.read_csv('CATracks_2000_pT_theta20.csv')
-# df_30 = pd.read_csv('CATracks_2000_pT_theta30.csv')
-
 # List PDG IDs for adding to denominator
 acceptMCP_PDG = [-13]
 df_list = []
@@ -63,35 +60,21 @@ for get in getters:
 
     ll_Index = 0
     for df in df_list:
-        # if(df[isPrimary][get].empty == False):
-        # setup df masks
-        # mask = (data['value2'] == 'A') & (data['value'] > 4)
-        # isPrimary = (df['pdgMCP'].isin(acceptMCP_PDG)) & (df[get])
         isPrimary = (df['pdgMCP'].isin(acceptMCP_PDG))
-        # hasTrack = np.isfinite(df['trkPurity']) & (df['pdgMCP'].isin(acceptMCP_PDG)) & (df[get])
         hasTrack = np.isfinite(df['trkPurity']) & (df['pdgMCP'].isin(acceptMCP_PDG))
 
-        # print(f'df[isPrimary]: {df[isPrimary]}')
-        
         plt.figure(1)
         print('Making intiial histograms...')
-        nDenom, binsDenom, patchesDenom = plt.hist(df[isPrimary][get], bins=binedges, histtype='step')
-        nNumer, binsNumer, patchesNumer = plt.hist(df[hasTrack][get], bins=binedges, histtype='step')
+        nDenom, binsDenom, patchesDenom = plt.hist(df[isPrimary][get], bins=binedges)
+        nNumer, binsNumer, patchesNumer = plt.hist(df[hasTrack][get], bins=binedges)
         plt.close()
         print("...Done")
-        sumDenom = 0
-        sumNumer = 0
-        print(f"nDenom: {nDenom}\nnNumer: {nNumer}")
-        for x in nDenom:
-            sumDenom += x
-        for y in nNumer:
-            sumNumer += y
+        
         efficiencies = []
         errors_low = []
         errors_upp = []
-        print(f"nNumer: {nNumer} nDenom: {nDenom}")
+        # print(f"nNumer: {nNumer} nDenom: {nDenom}")
         for num, den in zip(nNumer, nDenom):
-            print(f"num: {num} denom: {den}")
             if den == 0:
                 bin_eff = np.nan
             else: 
@@ -103,8 +86,6 @@ for get in getters:
             errors_low.append(bin_eff - ci_low)
             errors_upp.append(ci_upp - bin_eff)
 
-        # print(f"{len(efficiencies)} efficiencies: {efficiencies}")
-        # print(f"{len(binedges)} binedges: {binedges}\n{len(binsDenom)} binsDenom: {binsDenom}")
         errors = [errors_low, errors_upp]
         plt.figure(2)
         print(f'label: {label_list[ll_Index]}')
