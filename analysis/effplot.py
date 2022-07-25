@@ -10,7 +10,8 @@ import sys
 acceptMCP_PDG = [-13]
 df_list = []
 label_list = []
-files = ['CATracks_2000_pT_theta20.csv', 'CATracks_2000_pT_theta30.csv', 'CATracks_2000_pTshort_theta90.csv']
+# files = ['CATracks_2000_pT_theta20.csv', 'CATracks_2000_pT_theta30.csv', 'CATracks_2000_pTshort_theta90.csv']
+files = ['eff_starter_CATracks_500_2pT_theta85.csv']
 
 for f in files:
     # Find labels from file names
@@ -28,7 +29,7 @@ for get in getters:
     print(f"Plotting {get}")
 
     # Reset bin finding params
-    nbins = 250
+    nbins = 10
     lowestedge = 1000
     highestedge = -1000
 
@@ -89,7 +90,6 @@ for get in getters:
         errors = [errors_low, errors_upp]
         plt.figure(2)
         print(f'label: {label_list[ll_Index]}')
-        print(f'shapes - binCentres: {np.shape(binCentres)}, efficiencies: {np.shape(efficiencies)}, errors: {np.shape(errors)}')
         plt.errorbar(binCentres, efficiencies, yerr=errors, label=label_list[ll_Index], fmt='.', ecolor=None, elinewidth=1, capsize=4, capthick=1)
         
         ll_Index += 1    
@@ -101,5 +101,6 @@ for get in getters:
     fontP.set_size('x-small')
     plt.legend(loc='lower right', prop=fontP)
     plt.grid(True)
-    plt.savefig(f'figures/eff_2000_{get}_theta.png')
+    # plt.savefig(f'figures/eff_2000_{get}_theta.png')
+    plt.savefig(f'figures/eff_starter_500_{get}_2pT_theta85.png')
     plt.close()

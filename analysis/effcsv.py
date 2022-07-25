@@ -145,7 +145,6 @@ def get_data(infile, outfile):
 				datadict['pdgMCP'].append(extract_mcparticle_properties(mcp)[4])
 				trkHitsAssociatedWithThisMCParticle = []
 				for simHitCol, hitRel in zip((vtxBarHits, vtxEndHits, trkBarHits, trkEndHits), (vtxBarHitsRels, vtxEndHitsRels, trkBarHitsRels, trkEndHitsRels)):
-					print("simHitCol: ", simHitCol.getNumberOfElements, "hitRel: ", hitRel.getNumberOfElements)
 					for simHits, hRel in zip(simHitCol, hitRel):
 						if simHits.getMCParticle() == mcp:
 							# print("Matched simHit to this MCParticle")
@@ -204,7 +203,6 @@ def get_data(infile, outfile):
 			# finished processing event so increment evtNum
 			evtNum += 1
 		# end loop over events
-	# print('\n datadict', datadict)
 	print(Counter(nTrksFoundList))
 	
 	for x in datadict:
