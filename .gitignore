@@ -9,3 +9,8 @@ recoedFiles/*
 !recoedFiles/README.md
 
 analysis/old
+
+analysis/figures/*
+!analysis/figures/README.md
+
+analysis/*csv
