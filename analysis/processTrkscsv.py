@@ -1,18 +1,8 @@
 #--------------------------------------------------------------
-# Track collection to be used as clic option?
-#
 # Test other method of dict keys
 #
-# Make sure works in case of multiple true tracks...
-# ... i.e. get multiple true tracks in same evt (from diff mcp)
-# ... cross check with doubleTrue.py
-#
-# add 3rd element to trkTup? i.e. (trk, pur, best?)-> dont think so
-# or assign best track to variable? -> this 
-# Keep current with the mcp associated as 3rd element -> useful later...?
-#
-# When to write hitInfo to dict 
-# now rearrange to make list of trkTuples
+# Ambigious to which good trk should compare fake to in case
+# >1 good trk ... but is this a problem that needs sorting?
 #--------------------------------------------------------------
 from __future__ import division
 from collections import Counter, OrderedDict, defaultdict
@@ -86,8 +76,16 @@ def add_to_dict(datadict, evtNum, trkPTup, good, nSharedHits, nMissingHits, nExt
 		Tuple containing the track to be added & its purity
 	good : Bool
 		Indicates if track is the chosen 'True' track or is a fake (False).
-		
-	
+	nSharedHits : int
+		Number of hits shared between a given fake track and the good track. Nan for a good track or for fake if no good to compare with.
+	nMissingHIts : int
+		Number of hits missing on the fake track that are on the good track. Nan for a good track or for fake if no good to compare with.
+	nExtraHits : int 
+		Number of additional hits on the fake track that are not on the good track. Nan for a good track or for fake if no good to compare with.
+	hitInfo : [[int, (float, float, float)]]
+			i.e. [[pdgID, (x, y, z)]]
+		For each hit on a track, the PDG ID of the mcp that caused the hit and the position of the hit.
+
 	Returns
 	------
 	Procedural - acts on dict provided
@@ -180,7 +178,7 @@ def comp_tuple_maker(mcpObjList):
 	Returns
 	------
 	outTups : [(ROOT.IOIMPL::MCParticleIOImpl, int, int)
-		[(mcpObject, occurnaces in the list, PDG ID)]
+		i.e. [(mcpObject, occurnaces in the list, PDG ID)]
 	"""
 	outTups = []
 	nUnique, mcpDict, pdgList = count_mcp(mcpObjList)
@@ -193,6 +191,7 @@ def comp_tuple_maker(mcpObjList):
 def compare_tracks(targetTrk, compTrk, hitDict):
 	"""Find the similarites and differneces between the hits of two tracks
 		Often used to compare a good track (targetTrk) to a fake (compTrk)
+
 	Arguments
 	---------
 	targetTrk : ROOT.IOIMPL.TrackIOImpl
@@ -202,7 +201,6 @@ def compare_tracks(targetTrk, compTrk, hitDict):
 	hitDict : dict
 		Dictionary mapping all the trkHits to the MCP, i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : ROOT.IOIMPL::MCParticleIOImpl}
 	
-
 	Returns
 	------
 	extraHits : [ROOT.IOIMPL::TrackerHitPlaneIOImpl]
@@ -254,6 +252,21 @@ def compare_tracks(targetTrk, compTrk, hitDict):
 	return (extraHits, extraTuples, missingHits, missingTuples, sharedHits, sharedTuples)
 
 def extract_hit_info(track, hitDict):
+	"""For each hit on a track, find the PDG ID of the mcp that caused the hit and the position of the hit.
+
+	Arguments
+	---------
+	track : ROOT.IOIMPL.TrackIOImpl
+		The track to find the hitInfo for.
+	hitDict : dict
+		Dictionary mapping all the trkHits to the MCP, i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : ROOT.IOIMPL::MCParticleIOImpl}
+
+	Returns
+	------
+	hitInfo : [[int, (float, float, float)]]
+			i.e. [[pdgID, (x, y, z)]]
+		For each hit on a track, the PDG ID of the mcp that caused the hit and the position of the hit. 
+	"""
 
 	hitInfo = []
 	for trkHit in track.getTrackerHits():
@@ -264,8 +277,8 @@ def extract_hit_info(track, hitDict):
 	
 	return hitInfo
 
-def get_data(infile, outfile):
-	print("infile: {}, outfile: {}\n".format(infile, outfile))
+def get_data(infile, outfile, trkcollection, incsimparticles):
+	print("infile: {}, outfile: {}, trkcollection: {}, incSimParticles: {}\n".format(infile, outfile, trkcollection, incsimparticles))
 
 	# Create required empty lists in datadict for each getter method
 	datadict = OrderedDict()
@@ -285,7 +298,6 @@ def get_data(infile, outfile):
 	datadict['nExtraHits'] = []
 	datadict['hitInfo'] = []
 	# datadict['nHits'] = []
-	# nTrksFoundList = []
 
 	evtNum = 0
 
@@ -299,7 +311,7 @@ def get_data(infile, outfile):
 
 			fakeCounter = 0
 
-			MCParticles = event.getCollection('MCParticle')
+			MCParticles = list(event.getCollection('MCParticle'))
 			# SiVertexBarrelHitsRelations SiVertexEndcapHitsRelations SiTrackerBarrelHitsRelations SiTrackerEndcapHitsRelations
 			vtxBarHits = event.getCollection('SiVertexBarrelHits')
 			vtxBarHitsRels = event.getCollection('SiVertexBarrelHitsRelations')
@@ -312,7 +324,8 @@ def get_data(infile, outfile):
 			
 			### EDIT - Input track collection name to be used
 			# tracks = event.getCollection('CATracks')
-			tracks = event.getCollection('SiTracks')
+			# tracks = event.getCollection('SiTracks')
+			tracks = event.getCollection(str(trkcollection))
 			######################################################
 
 			# dict to hold candidate good tracks in format
@@ -326,8 +339,6 @@ def get_data(infile, outfile):
 			
 			# print('###', len(tracks), 'tracks made in event')
 			for track in tracks:
-				# flag to indicate if track is real or fake 
-				pureTrk = False
 				hitsOnTrack = []
 				hitMCP = []
 				for tHit in track.getTrackerHits():
@@ -341,9 +352,17 @@ def get_data(infile, outfile):
 							if hRel.getFrom() == trkHit:
 								# Chain together getter methods?
 								mcp = simHit.getMCParticle()
+								
+								if incsimparticles and mcp.isCreatedInSimulation() == True and mcp not in MCParticles:
+									MCParticles.append(mcp)
+								if incsimparticles and mcp not in MCParticles:
+									print('##### Oof - where is this particle from?? #####')
+								
 								hitMCP.append(mcp)
 								hitDict[trkHit] = mcp
 
+				# flag to indicate if track is real or fake 
+				pureTrk = False
 				maxPurity = -1
 				for mcp in MCParticles:
 					hCount = hitMCP.count(mcp)
@@ -358,6 +377,7 @@ def get_data(infile, outfile):
 							if k == mcp:
 								key = k
 						pureTrksDict[key].append(trkPurTuple)
+						maxPurity = purity
 					elif purity > maxPurity:
 						trkPurTuple = (track, purity, mcp)
 						maxPurity = purity
@@ -377,6 +397,7 @@ def get_data(infile, outfile):
 
 			# Look at all the tracks in the evt 
 			goodTrackTuples = []
+			goodTrk = False # reset goodTrk for each evt
 			for trkMCP in pureTrksDict:
 				if len(pureTrksDict[trkMCP]) > 1: # Need to pick out the 'True' track for this mcp
 					trksMom = []
@@ -405,27 +426,30 @@ def get_data(infile, outfile):
 				
 			if len(goodTrackTuples) > 1:
 				print('\n### Multiple good tracks found in event {}\n'.format(evtNum))
-			elif len(goodTrackTuples) == 0:
-				print('\n### No good tracks found in event {}\n'.format(evtNum))
-				
+			# elif len(goodTrackTuples) == 0:
+				# print('### No good tracks found in event {}'.format(evtNum))
+			
 			for goodTrkT in goodTrackTuples:
 				goodTrk = goodTrkT[0]
 				trkMom = extract_track_properties(goodTrk)[0]
 				hitInfo = extract_hit_info(goodTrk, hitDict)
 				add_to_dict(datadict, evtNum, goodTrkT, True, float('NaN'), float('NaN'), float('NaN'), hitInfo)
 
-
 			for fakeTrkT in fakeTrksList:
 				fakeTrk = fakeTrkT[0]
 				trkMom = extract_track_properties(fakeTrk)[0]
 				hitInfo = extract_hit_info(fakeTrk, hitDict)
 
-				extraHits, extraTuples, missingHits, missingTuples, sharedHits, sharedTuples = compare_tracks(goodTrk, fakeTrk, hitDict)
-				add_to_dict(datadict, evtNum, fakeTrkT, False, len(sharedHits), len(missingHits), len(extraHits), hitInfo)
+				if goodTrk: # Can run comparisons between good and fake trks
+					extraHits, extraTuples, missingHits, missingTuples, sharedHits, sharedTuples = compare_tracks(goodTrk, fakeTrk, hitDict)
+					add_to_dict(datadict, evtNum, fakeTrkT, False, len(sharedHits), len(missingHits), len(extraHits), hitInfo)
+				elif not goodTrk: # Nothing to comapre with -> insert NaN
+					add_to_dict(datadict, evtNum, fakeTrkT, False, float('NaN'), float('NaN'), float('NaN'), hitInfo)
+				
 				# Could add tuples to output dict
-				print('extraTupL: ', extraTuples)
-				print('missTupL: ', missingTuples)
-				print('sharedTupL: ', sharedTuples)
+				# print('extraTupL: ', extraTuples)
+				# print('missTupL: ', missingTuples)
+				# print('sharedTupL: ', sharedTuples)
 
 			if fakeCounter > 1:
 				print(fakeCounter, 'fake tracks found in evt', evtNum)
@@ -451,10 +475,12 @@ def get_data(infile, outfile):
 @click.command()
 @click.option('--infile', '-i', help="Input slcio file", type=str, prompt=True, multiple=True)
 @click.option('--outfile', '-o', help="Output csv file", type=str, prompt=True)
+@click.option('--trkcollection', '-tc', help="Track collection to use (usually SiTracks or CATracks)", type=str, prompt=True)
+@click.option('--incSimParticles/--no-incSimParticles', '-isp/-no-isp', help="Include particles created in simulation as MCP", prompt=True)
 
-def main(infile, outfile):
+def main(infile, outfile, trkcollection, incsimparticles):
 
-	get_data(infile, outfile)
+	get_data(infile, outfile, trkcollection, incsimparticles)
 
 if __name__=='__main__':
  	main()
