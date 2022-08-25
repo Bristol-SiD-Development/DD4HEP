@@ -2,11 +2,10 @@
 # Test other method of dict keys
 #
 # Ambigious to which good trk should compare fake to in case
-# >1 good trk ... but is this a problem that needs sorting?
+# >1 good trk... but is this a problem that needs sorting?
 #--------------------------------------------------------------
 from __future__ import division
 from collections import Counter, OrderedDict, defaultdict
-import ROOT
 import csv #not using pandas due to numpy issues
 import click
 import sys
@@ -82,9 +81,9 @@ def add_to_dict(datadict, evtNum, trkPTup, good, nSharedHits, nMissingHits, nExt
 		Number of hits missing on the fake track that are on the good track. Nan for a good track or for fake if no good to compare with.
 	nExtraHits : int 
 		Number of additional hits on the fake track that are not on the good track. Nan for a good track or for fake if no good to compare with.
-	hitInfo : [[int, (float, float, float)]]
-			i.e. [[pdgID, (x, y, z)]]
-		For each hit on a track, the PDG ID of the mcp that caused the hit and the position of the hit.
+	hitInfo : [[int, (float, float, float), (int, int, int, int, int)]]
+			i.e. [[pdgID, (x, y, z), (system, side, layer, module, sensor)]]
+		For each hit on a track, the PDG ID of the mcp that caused the hit, the position of the hit and the detector part which registered the hit. 
 
 	Returns
 	------
@@ -116,7 +115,8 @@ def trkHit_to_mcp(hitDict, trkHit):
 	Arguments
 	---------
 	hitDict : dict
-		Dictionary mapping all the trkHits to the MCP, i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : ROOT.IOIMPL::MCParticleIOImpl}
+		Dictionary mapping all the trkHits to the MCP and the ID values of the detector part which registered the track hit, 
+		i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : [ROOT.IOIMPL::MCParticleIOImpl, (int, int, int, int, int)}
 	trkHit : ROOT.IOIMPL::TrackerHitPlaneIOImpl
 		Tracker hit to find the associated MCP for.
 
@@ -129,9 +129,35 @@ def trkHit_to_mcp(hitDict, trkHit):
 	trkHitsObjs = hitDict.keys()
 	for trkHO in trkHitsObjs:
 		if trkHO == trkHit:
-			mcp = hitDict[trkHO]
+			mcp = hitDict[trkHO][0]
 		
 	return mcp
+
+def trkHit_to_id_values(hitDict, trkHit):
+	"""Get the ID values of the detector part which registered the track hit.
+		Required as usual dict methods do not work with these objects      
+	
+	Arguments
+	---------
+	hitDict : dict
+		Dictionary mapping all the trkHits to the MCP and the ID values of the detector part which registered the track hit, 
+		i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : [ROOT.IOIMPL::MCParticleIOImpl, (int, int, int, int, int)}
+	trkHit : ROOT.IOIMPL::TrackerHitPlaneIOImpl
+		Tracker hit to find the associated MCP for.
+
+	Returns
+	------
+	idVals : (int, int, int, int, int)
+		i.e. (system, side, layer, module, sensor)
+		The ID values of the detector part which registered the track hit.
+	"""
+	
+	trkHitsObjs = hitDict.keys()
+	for trkHO in trkHitsObjs:
+		if trkHO == trkHit:
+			idVals = hitDict[trkHO][1]
+		
+	return idVals
 
 def count_mcp(mcpObjList):
 	"""Find the number of unique MCPs that are contained in the list of MCP objects.
@@ -199,7 +225,8 @@ def compare_tracks(targetTrk, compTrk, hitDict):
 	compTrk : ROOT.IOIMPL.TrackIOImpl
 		The track being compared to the targetTrk
 	hitDict : dict
-		Dictionary mapping all the trkHits to the MCP, i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : ROOT.IOIMPL::MCParticleIOImpl}
+		Dictionary mapping all the trkHits to the MCP and the ID values of the detector part which registered the track hit, 
+		i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : [ROOT.IOIMPL::MCParticleIOImpl, (int, int, int, int, int)}
 	
 	Returns
 	------
@@ -259,13 +286,14 @@ def extract_hit_info(track, hitDict):
 	track : ROOT.IOIMPL.TrackIOImpl
 		The track to find the hitInfo for.
 	hitDict : dict
-		Dictionary mapping all the trkHits to the MCP, i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : ROOT.IOIMPL::MCParticleIOImpl}
+		Dictionary mapping all the trkHits to the MCP and the ID values of the detector part which registered the track hit, 
+		i.e. {ROOT.IOIMPL::TrackerHitPlaneIOImpl : [ROOT.IOIMPL::MCParticleIOImpl, (int, int, int, int, int)}
 
 	Returns
 	------
-	hitInfo : [[int, (float, float, float)]]
-			i.e. [[pdgID, (x, y, z)]]
-		For each hit on a track, the PDG ID of the mcp that caused the hit and the position of the hit. 
+	hitInfo : [[int, (float, float, float), (int, int, int, int, int)]]
+			i.e. [[pdgID, (x, y, z), (system, side, layer, module, sensor)]]
+		For each hit on a track, the PDG ID of the mcp that caused the hit, the position of the hit and the detector part which registered the hit. 
 	"""
 
 	hitInfo = []
@@ -273,9 +301,45 @@ def extract_hit_info(track, hitDict):
 		mcp = trkHit_to_mcp(hitDict, trkHit)
 		pdgID = count_mcp([mcp])[2][0]
 		x, y, z = (trkHit.getPosition()[0], trkHit.getPosition()[1], trkHit.getPosition()[2])
-		hitInfo.append([pdgID, (x, y, z)])
+		idVals = trkHit_to_id_values(hitDict, trkHit)
+		hitInfo.append([pdgID, (x, y, z), idVals])
 	
 	return hitInfo
+
+def extract_id_values(idDecoder):
+	"""For a given detector cellID find the corresponding part of the detctor 
+
+	Arguments
+	---------
+	idDecoder : ROOT.UTIL::BitField64
+		Cell ID decoder set with the cell required
+
+	Returns
+	------
+	system : int
+		ID code for the subsystem responsible. Defined in top level detector description xml, e.g. `SiD/compact/SiD_o2_v03/SiD_o2_v03.xml`
+	side : int
+		ID code for the side of the detector cell is located.
+	layer : int
+		Layer number cell is located on within the subdetector.
+	module : int
+		Module number within the layer the cell belongs to.
+	sensor : int
+		Sensor number (if used) within the module the cell corresponds to. 0 if not used.
+	"""
+	### Uncomment to see the fields
+	# idValueString = idDecoder.valueString()
+	# print(idValueString)
+	###
+	# Access the field information using a valid field from the cell ID encoding string
+	# extract values and cast as int from longs
+	system = int(idDecoder['system'].value())
+	side = int(idDecoder['side'].value())
+	layer = int(idDecoder['layer'].value())
+	module = int(idDecoder['module'].value())
+	sensor = int(idDecoder['sensor'].value())
+	
+	return(system, side, layer, module, sensor)
 
 def get_data(infile, outfile, trkcollection, incsimparticles):
 	print("infile: {}, outfile: {}, trkcollection: {}, incSimParticles: {}\n".format(infile, outfile, trkcollection, incsimparticles))
@@ -334,8 +398,8 @@ def get_data(infile, outfile, trkcollection, incsimparticles):
 			# Holds final fake tracks
 			fakeTrksList = []
 			# Hold the MCP assoc. w/ the trker hit in format
-			# {trkHit: mcp}
-			hitDict = {}
+			# {trkHit: [mcp, (system, side, layer, module, sensor)]}
+			hitDict = defaultdict(list)
 			
 			# print('###', len(tracks), 'tracks made in event')
 			for track in tracks:
@@ -343,11 +407,18 @@ def get_data(infile, outfile, trkcollection, incsimparticles):
 				hitMCP = []
 				for tHit in track.getTrackerHits():
 					hitsOnTrack.append(tHit)
+					
 				#### Very slow way to do this!!! 
 				# Want trkHit -> simHit -> mcp
 				# Need to get trk Hit -> simHit some how #### 
 				for trkHit in hitsOnTrack:
 					for simHitCol, hitRel in zip((vtxBarHits, vtxEndHits, trkBarHits, trkEndHits), (vtxBarHitsRels, vtxEndHitsRels, trkBarHitsRels, trkEndHitsRels)):
+						
+						# get the cell ID encoding string from the collection parameters
+						cellIdEncoding = simHitCol.getParameters().getStringVal(EVENT.LCIO.CellIDEncoding)
+						# define a cell ID decoder for the collection
+						idDecoder = UTIL.BitField64(cellIdEncoding)
+
 						for simHit, hRel in zip(simHitCol, hitRel):
 							if hRel.getFrom() == trkHit:
 								# Chain together getter methods?
@@ -357,9 +428,19 @@ def get_data(infile, outfile, trkcollection, incsimparticles):
 									MCParticles.append(mcp)
 								if incsimparticles and mcp not in MCParticles:
 									print('##### Oof - where is this particle from?? #####')
+									sys.exit(1)
 								
 								hitMCP.append(mcp)
-								hitDict[trkHit] = mcp
+
+								cellID = simHit.getCellID()
+
+								# set up the ID decoder for this cell ID
+								idDecoder.setValue(cellID)
+								idValues = extract_id_values(idDecoder)
+								
+								# add the mcp and cell ID values to hitDict
+								hitDictEntry = [mcp, idValues]
+								hitDict[trkHit] = hitDictEntry
 
 				# flag to indicate if track is real or fake 
 				pureTrk = False
