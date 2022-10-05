@@ -1,4 +1,5 @@
 ###############################
+# TODO restimate p0 fit params from the initial residual histogram
 # TODO find output plot file name from input file names
 # TODO could normalize to any input variable/value
 # TODO write output fit parameters to file or add to plot legend?
