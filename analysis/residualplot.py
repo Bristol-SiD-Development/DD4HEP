@@ -16,8 +16,8 @@ def evt_duplicates(evtNums):
 
 ####################################################################
 ### EDIT ###
-df_CAT = pd.read_csv('loc_2000_100pT_CATracks_theta20.csv')
-df_SiT = pd.read_csv('loc_2000_100pT_SiTracks_theta20.csv')
+df_CAT = pd.read_csv('process_2000_100pT_CATracks_theta20.csv')
+df_SiT = pd.read_csv('process_2000_100pT_SiTracks_theta20.csv')
 gun_pT = 100
 # df_CAT = pd.read_csv('loc_2000_2pT_theta90.csv')
 # df_SiT = pd.read_csv('loc_2000_2pT_theta90.csv')
@@ -53,16 +53,17 @@ df_CAT.reset_index(drop=True, inplace=True)
 df_SiT.reset_index(drop=True, inplace=True)
 
 # Calc and add nHits to both dfs
-df_CAT['nHits'] = [len(eval(row)) for row in df_CAT['hitInfo']]
-df_SiT['nHits'] = [len(eval(row)) for row in df_SiT['hitInfo']]
+df_CAT['nHits'] = [len(ast.literal_eval(row)) for row in df_CAT['hitInfo']]
+df_SiT['nHits'] = [len(ast.literal_eval(row)) for row in df_SiT['hitInfo']]
 
 
 # getters = ['getD0', 'getPhi', 'getOmega', 'getZ0', 'getTanLambda', 'getChi2', 'getNdf', 'getdEdx', 'getdEdxError', 'getRadiusOfInnermostHit', 'getTransmom', 'getMom', 'nHits']
 getters = ['trkTransmom', 'nHits']
-
-for get in getters:
-    #    res, res/pT, res/pT**2
-    for pow in [0, 1, 2]:
+# list of powers to normalize residual to gun pT by - could be extended to other factors to normalize to.
+powersList = [[0, 1, 2], [0]]
+#    res, res/pT, res/pT**2
+for get, powers in zip(getters, powersList):
+    for pow in powers:
 
         residual = (df_CAT[get] - df_SiT[get])/(gun_pT**pow)
 
@@ -99,7 +100,7 @@ for get in getters:
             # plt.xscale('log')
             plt.xlabel(f'Residual {get}')
             plt.ylabel('Count')
-            plt.savefig(f'test_residual_2000_{gun_pT}pT_theta20_log_{get}_pT**{pow}.png')
+            plt.savefig(f'figures/test_residual_2000_{gun_pT}pT_theta20_log_{get}_pT**{pow}.png')
             plt.close()
 
 print(f"\n### {evtsRemovedCounter} event(s) removed due to multiple or missing tracks\n     {len(df_CAT)} events remain ###\n")
