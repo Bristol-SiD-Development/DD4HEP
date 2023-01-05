@@ -39,7 +39,7 @@ Start by setting up your environment. You will have to do this every time you st
 ```
 source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh
 ```
-... or more efficiently by adding the following to your ~/.bashrc: (remeber to restart shell session after)
+... or more efficiently by adding the following to your `~/.bashrc` (remembering to restart shell session after)
 ```
 alias ilcsoft="source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh"
 ```
@@ -50,13 +50,13 @@ N.B. if an iLCSoft init script is run more than once in a shell session it will 
 
 LCIO (**L**inear **C**ollider **I/O**) is a persistency framework and event data model for linear collider detector studies used across different linear collider experiments. This format is used for for all simulation and analysis work on this project at Bristol. A file in this format has the `.slcio` extension.
 
-LCIO is based on the idea of having a named 'Collection' (associated group of objects) of a given type (or data entitiy) to store information. The Collections are generally named in the underlying C++ code. Each data entity has associated 'getter methods' which can be called to extract information from an object or to move to an associated object of a different entity type (e.g. from a Simulated hit to the Monte Carlo particle that caused it). These enities and getter methods are shown below. The arrows indicate types that you can move between with a getter method, this ability to move beetween types is a result of a 'relation'. These relations may also be coded in via a *LCRelation* (see centre of diagram), for example a relation is often added from a *SimTrackerHit -> TrackerHit*. Note that when moving from one type to another the getter method often only returns a pointer or refernce to the first elememt of the new type (c.f. the underlying C++), which you then have to iterate through.
+LCIO is based on the idea of having a named 'Collection' (associated group of objects) of a given type (or data entity) to store information. The Collections are generally named in the underlying C++ code. Each data entity has associated 'getter methods' which can be called to extract information from an object or to move to an associated object of a different entity type (e.g. from a Simulated hit to the Monte Carlo particle that caused it). These entities and getter methods are shown below. The arrows indicate types that you can move between with a getter method, this ability to move between types is a result of a 'relation'. These relations may also be coded in via a *LCRelation* (see centre of diagram), for example a relation is often added from a *SimTrackerHit -> TrackerHit*. Note that when moving from one type to another the getter method often only returns a pointer or reference to the first element of the new type (c.f. the underlying C++), which you then have to iterate through.
 
 The [anajob](#summary-checks) command is the best way to find the Collection names and types in your sample. 
 
 ![getter methods](methods.png)
 
-Further detail on LCIO can be found [here](https://inspirehep.net/files/b4997a1c1ef975c1c91a4d462c101267) - including a couple of helpful diagrams for getting your head around the format and the differnces between groups of data entities.
+Further detail on LCIO can be found [here](https://inspirehep.net/files/b4997a1c1ef975c1c91a4d462c101267) - including a couple of helpful diagrams for getting your head around the format and the differences between groups of data entities.
 
 Full definitions of the LCIO object types and their getter methods (member functions) the [documentation](https://ilcsoft.desy.de/LCIO/current/doc/doxygen_api/html/namespaceEVENT.html) page is useful.
 
@@ -64,27 +64,27 @@ Full definitions of the LCIO object types and their getter methods (member funct
 
 The tracking system is inside the solenoid, so all charged particles trace ~ a helix in the detector. It is the aim of the tracking system to reconstruct the path of the particles by determining this helix. 
 
-In LCIO the track helix is defined by five track parmameters as rigorously detailed [here](https://bib-pubdb1.desy.de/record/81214/files/LC-DET-2006-004%5B1%5D.pdf). 
+In LCIO the track helix is defined by five track parameters as rigorously detailed [here](https://bib-pubdb1.desy.de/record/81214/files/LC-DET-2006-004%5B1%5D.pdf). 
 
 In the *(x, y)* plane (where the charged particle moves along a circle)
 >$Ω=R^−1$, the radius of curvature where R is the radius. \
 $d_0$, the transverse impact parameter in *(x, y)* - how close the track gets to the reference point. \
-$φ_0$, the azimuthal angle φ at closest approach in *(x, y)* - the direction of the track's momentum at point of closest aproach to the reference point. 
+$φ_0$, the azimuthal angle φ at closest approach in *(x, y)* - the direction of the track's momentum at point of closest approach to the reference point. 
 
-In the *(s, z)* plane (where the charged particle moves along a striaght line):
+In the *(s, z)* plane (where the charged particle moves along a straight line):
 > $tan λ= ds/dz$, the ratio of arc length (*s*) to z traversed. \
  $z_0$, the azimuthal impact parameter in *z* - how close the track gets to the reference point.   
 
 N.B. In SiD the reference point is taken as the centre of the detector which is defined as *(0, 0, 0)* in the coordinate system. For most purposes this can also be taken as the machine interaction point.  
 
-Physics properties are derived from the five track parmeters as follows: \
+Physics properties are derived from the five track parameters as follows: \
 >$p_T = c \times 10^{-15} \cdot|\frac{B_z}{Ω}|$, with *c* in *mm/s*, the field in Tesla giving $p_T$ in *GeV/c*. \
 $p = p_T ({1+tan^2λ})^{0.5}$, giving *p* in *GeV/c*. \
 $θ_0 = \frac{π}{2} -arctan(tanλ)$. \
 $φ_0$ is  a track parameter (so available for free). \
 The sign of the charge of the particle is related to the direction of th *b* field and the sign of $Ω$.
 
-Note: What we refer to as the θ and φ of a track are taken to be that at the point of closest approach to the refernce point (origin) i.e. the point where most particles originate from -> $θ_0$ and $φ_0$ from above.
+Note: What we refer to as the θ and φ of a track are taken to be that at the point of closest approach to the reference point (origin) i.e. the point where most particles originate from -> $θ_0$ and $φ_0$ from above.
 
 # Running a simulation
 There are three steps in running the full chain. 
@@ -95,11 +95,19 @@ There are three steps in running the full chain.
 > File naming conventions are included in the README in the relevant directories.
 ## Generating input particles
 
-For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. The scripts in this directory are modified from the cannonical script to give sucessive event numbers across a run with multiple momenta.
+For simple input events (e.g. test muons), modify a copy of an gunScripts/lcio_particle_gun_xxx.py to generate the desired particles. The particle type (PDG), momentum, phi, and theta can be changed easily. The scripts in this directory are modified from the canonical script to give successive event numbers across a run with multiple momenta.
 
 For physics events (e.g. an ILC collision), you should seek out ready-made input files, ideally in .slcio format. Older ones may use the .stdhep format, which should be compatible but may cause problems in some cases.\
 Some of these can be found at:
-`###UPADTE when stored on sc01###`
+`/storage/zj19427/sid/higgs_samples/higgs_ffh/stdhep/`
+
+stdhep files can be converted into lcio format with a `stdhepjob` command such as 
+
+```
+stdhepjob [fileName.stdhep] [fileName.slcio] [nEvts]
+```
+where -1 is usually used to signify all events in the file should be acted upon. 
+
 
 ## Running detector simulation
 
@@ -129,16 +137,16 @@ It is best to work from existing .xmls and tailor them to your needs, so a good 
  - DD4hepXMLFile: path to the master geometry file - this MUST be the same one that was used for the simulation
  - LCIOOutputFile: path to the desired .slcio output file.
  - FileName: path to the desired .root histograms output file.
-The three file name/path parameters can be eaily found by searching for "EDIT". 
+The three file name/path parameters can be easily found by searching for "EDIT". 
 
-**N.B. relative file paths in the Marlin .xml are relative to the location of the exceution of the *command* (usually recoedFiles) NOT the location of the .xml file**  
+**N.B. relative file paths in the Marlin .xml are relative to the location of the execution of the *command* (usually recoedFiles) NOT the location of the .xml file**  
 
 Warnings/errors about too many tracks being created are ok - this is the conformal algorithm doing it's job and it will change its parameters to help.
 
 -------------------------------------------------------------------
 ### Marlin .xml breakdown
 
-Marlin works by running a sucession of processor modules (written in C++, mostly distributed via /cvmfs/). The path to these modules is set via the `init_ilcsoft.sh` environment script. This path can be checked by looking at the Marlin libray list path variable with `echo $MARLIN_DLL`. The two 'steup' modules and the 'output' module should always be used and in their given order. Any combination of other modules can be used in between. 
+Marlin works by running a succession of processor modules (written in C++, mostly distributed via /cvmfs/). The path to these modules is set via the `init_ilcsoft.sh` environment script. This path can be checked by looking at the Marlin library list path variable with `echo $MARLIN_DLL`. The two 'setup' modules and the 'output' module should always be used and in their given order. Any combination of other modules can be used in between. 
 
 The code for the modules can be found in the subdirectories of the `$ILCSOFT` directory or on the [iLCSoft GitHub](https://github.com/iLCSoft) page by searching for the relevant repository name. It is worth looking at both the header files and the main file to see all parameters and their defaults as they are not always given in the .xml. The defaults also provide clues on how and what to pass as parameters in the .xml.
 
@@ -146,7 +154,7 @@ If you need to edit the modules please see [Editing Marlin modules](#editing-mar
 
 A Marlin .xml has three main sections, the **execute** block, the **global** block and the **processor** blocks.  
 
-The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. This allows the same module to be run with different inputs or parameters under a different name in the .xml file. The given name in the **execute** block must corespond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
+The **execute** block defines given names to the modules *within the .xml* to be run and the order in which they are executed. This allows the same module to be run with different inputs or parameters under a different name in the .xml file. The given name in the **execute** block must correspond to the name used in a **processor** block. Modules can be easily turned on/off by commenting them out in this block.
 
 The **global** block defines global variables to be used across all processors, notably the input detector simulated .slcio file and the gear .xml file. Which event numbers to run on are also controlled here.
 
@@ -162,7 +170,7 @@ The first line of the block has the form
  corresponds to a module in `/cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/ConformalTracking/v01-10/src`.
 
 A parameter is fully defined in the module C++ source code and header files, and to find what should go in the Marlin .xml takes a little decoding.  
-In the header file the C++ type of all the named member variables (m_variableName) is found i.e. `std::vector<std::string>` which coresponds to a Marlin `type="StringVec"`. Look through .xml files to find examples of the correct 'Marlin type' terms.  
+In the header file the C++ type of all the named member variables (m_variableName) is found i.e. `std::vector<std::string>` which corresponds to a Marlin `type="StringVec"`. Look through .xml files to find examples of the correct 'Marlin type' terms.  
 This member variable can then be found in the main C++ file in a 'register' function which has the structure:
 ```
 registerFunction("xml keyword", "Parameter description", m_variableName, default value)
@@ -183,32 +191,94 @@ Taking three examples from the starter Marlin .xml, we can see parameters are se
 There are a few points to note...  
 
 1) A lcioType is not always required. It is needed for LCIO structures (see the [LCIO section](#lcio)), but not for native C++ types (see difference between first two and third example above).  
-2) **Order is important** - within a **processsor** block the order in which collections are passed to a parameter *must* correspond to the order for another parameter. This is seen in the order of hit collections being the same as the order of the hit relation collections in the above snippet.   
+2) **Order is important** - within a **processor** block the order in which collections are passed to a parameter *must* correspond to the order for another parameter. This is seen in the order of hit collections being the same as the order of the hit relation collections in the above snippet.   
 3) The xml keyword in the Marlin .xml file must be exactly as defined in the source C++ code.
 4) Not all parameters will be set in the Marlin .xml file, many have sensible defaults so do not appear in a processor block. This makes it important to check the source code to know what a module is up to and if you will ever need to change them.
 
 ### Pixel size studies
 Tracker pixels can be approximated without modifying the geometry files by changing the resolution parameters in the `DDPlanarDigiProcessor` modules. `ResolutionU` and `ResolutionV` are the tracker's resolution in the u and v directions so can be modified for different subdetectors and pixel sizes. 
 
-### Editing Marlin modules
-!!!!Info on cloneing e.g. clic repo for edit and use. add to DLL etc.!!!
+### Adding and Editing Marlin modules
+
+There are some iLCSoft modules that do not come with the standard iLCSoft distribution on CVMFS and need to cloned to your machine.
+
+First find the repository required on the [iLCSoft GitHub](https://github.com/iLCSoft) page under the Repositories tab and clone it, e.g. from your iLC directory with the iLCSoft environment set up
+```
+git clone https://github.com/iLCSoft/CLICPerformance.git
+```
+Then build your version of the code
+```
+cd CLICPerformance
+mkdir build
+cd build
+cmake -C $ILCSOFT/ILCSoft.cmake ..
+make install
+```
+In order to be used in a Marlin .xml, the modules specified in the new local code needs to be added to the Marlin path variable (Distributed Library List) - `MARLIN_DLL`. The new modules should be added at the start of the MARLIN_DLL with 
+```
+export MARLIN_DLL=[PATH TO lib/libMODULE.so]:$MARLIN_DLL
+
+# e.g. for my user area
+export MARLIN_DLL=/usersc/zj19427/iLC/CLICPerformance/lib/libCLICPerformance.so:$MARLIN_DLL
+```
+Each time you set up a new iLCSoft environment and you want to use your local code you have to add it to the path variable. It is therefore useful to add the export line to your `~/.bashrc` with something similar to 
+```
+alias addCLIC_performance_MARLIN_DLL_start='export MARLIN_DLL=/usersc/zj19427/iLC/CLICPerformance/lib/libClicPerformance.so:$MARLIN_DLL'
+```
+This module can then be used and called from a Marlin .xml in the same way as the usual modules.
+
+> If you want to edit or customise modules that are usually used via the distributed CVMFS versions you need to clone them for local editing. You cannot edit code from CVMFS. 
+
+If you only followed the steps above with module that is already included in the MARLIN_DLL, on running the Marlin command it will complain of loading duplicate libraries. In this case (e.g. the ConformalTracking module) the following further steps are required.
+
+<!-- Rename the package in CMakeLists.txt, so for e.g. the ConformalTracking package first clone as above, then with the iLCSoft environment set -->
+
+With the iLCSoft environment set, clone the repository as above. Then rename the package in CMakeLists.txt, so for e.g. the ConformalTracking package
+```
+cd ConformalTracking
+# Open CMakeLists.txt
+PROJECT( ConformalTracking ) -> PROJECT( localConformalTracking )
+# Close CMakeLists.txt
+```
+Rename the processor files
+```
+mv include/ConformalTracking.h include/localConformalTracking.h
+mv src/ConformalTracking.cc src/localConformalTracking.cc
+```
+Change the names in the source .h and .cc files, making sure all file and function names are changed as appropriate (ConformalTracking -> localConformalTracking). Use the compile time errors for clues on issues. Names also need to be changed in source files that call the files you want to access i.e. ConformalTrackingV2 calls ConformalTracking so names need changing there too.
+
+Compile and build as above
+```
+mkdir build
+cd build
+cmake -C $ILCSOFT/ILCSoft.cmake ..
+make install
+```
+Add your version of the module to the `MARLIN_DLL`
+```
+export MARLIN_DLL=/usersc/zj19427/iLC/ConformalTracking/lib/liblocalConformalTracking.so:$MARLIN_DLL
+```
+
+Remember to update the name of the module in your Marlin .xml 
+```
+<processor name="MyConformalTracking" type="localConformalTracking">
+```
 # QS breakdown
 In the quick start example you have reconstructed the path of 500 2 GeV muons with the conformal tracking algorithm. 
-
 
 `mkdir iLC; cd iLC; git clone ...; cd DD4HEP; git checkout -b developPK origin/developPK` \
 This series of commands makes a directory to clone the Bristol DD4HEP repository into, clones it and then grabs the current working branch. 
 
 `source /cvmfs/ilc.desy.de/sw/x86_64_gcc82_centos7/v02-02/init_ilcsoft.sh` sets up the iLCSoft environment from the cvmfs distribution mounted to the machine. LCIO, DD4hep, Marlin etc. can all now be fetched and used.
 
-`./auto/muonCATscripts/2pT_500_theta85_starter.sh` runs a shell script that excecutes the chain in sequence from particle generation, through detector simulation to reconstruction.
+`./auto/muonCATscripts/2pT_500_theta85_starter.sh` runs a shell script that executes the chain in sequence from particle generation, through detector simulation to reconstruction.
 
 **2pT_500_theta85_starter.sh**
 
 The relative paths are set such that the script should be called from the DD4HEP repository root directory.
 `2pT_500_theta85_starter.sh` is broken down in the comments below:
 ```
-# shebang - required for an excecutable shell script
+# shebang - required for an executable shell script
 #!/bin/sh  
 
 
@@ -240,4 +310,6 @@ dumpevent recoedFiles/reco_SiT_CAT_500_2pT_theta85_starter.slcio 4 > devt.txt
 
 # Analysis
 
-Analysis scripts written by Josh Tingey can be found in the analysis directory. See analysis/README.md for information and instructions. (Note: compatibility work on Josh's scripts is still a work in progress.)
+The final .slcio file then needs to be analysed - analysis scripts written by various contributors over the years can be found in the analysis directory. 
+
+See analysis/README.md for information and instructions including a quick start analysis.
